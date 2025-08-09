@@ -18,8 +18,12 @@ import {
   CheckSquare,
   MessageSquare,
   Settings,
+  LogOut,
 } from "lucide-react"
 import { Suspense } from "react"
+import { ProtectedRoute } from "@/components/protected-route"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { useAuth } from "@/lib/auth-context"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -33,20 +37,40 @@ const navigation = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { user, signOut } = useAuth()
+
+  const handleSignOut = async () => {
+    await signOut()
+  }
+
+  const getUserInitials = () => {
+    if (user?.user_metadata?.first_name && user?.user_metadata?.last_name) {
+      return `${user.user_metadata.first_name[0]}${user.user_metadata.last_name[0]}`
+    }
+    return user?.email?.[0]?.toUpperCase() || 'U'
+  }
+
+  const getUserDisplayName = () => {
+    if (user?.user_metadata?.first_name && user?.user_metadata?.last_name) {
+      return `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
+    }
+    return user?.email || 'User'
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <div className="w-64 bg-card border-r border-border flex flex-col">
         {/* Logo */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="font-semibold text-lg">PlankPort</div>
-              <div className="text-sm text-gray-500">Agency Portal</div>
+              <div className="text-sm text-muted-foreground">Agency Portal</div>
             </div>
           </div>
         </div>
@@ -62,8 +86,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      ? "bg-primary/10 text-primary border-r-2 border-primary"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   <item.icon className="w-5 h-5" />
@@ -79,11 +103,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Suspense fallback={<div>Loading...</div>}>
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="bg-white border-b border-gray-200 px-6 py-4">
+          <header className="bg-card border-b border-border px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex-1 max-w-lg">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input placeholder="Search clients, tasks, or templates..." className="pl-10" />
                 </div>
               </div>
@@ -98,11 +122,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </Badge>
                 </Button>
                 <div className="flex items-center gap-3">
+                  <ThemeToggle />
                   <Avatar className="w-8 h-8">
                     <AvatarImage src="/placeholder.svg" />
-                    <AvatarFallback>DU</AvatarFallback>
+                    <AvatarFallback>{getUserInitials()}</AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-medium">Demo User</span>
+                  <span className="text-sm font-medium">{getUserDisplayName()}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSignOut}
+                    className="ml-2"
+                    title="Sign out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -112,6 +146,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <main className="flex-1 p-6">{children}</main>
         </div>
       </Suspense>
-    </div>
+      </div>
+    </ProtectedRoute>
   )
 }

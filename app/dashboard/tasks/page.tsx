@@ -14,8 +14,8 @@ export default function TasksPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Task Management</h1>
-        <p className="text-gray-600">Monitor and manage all client tasks across your agency</p>
+        <h1 className="text-2xl font-bold text-foreground">Task Management</h1>
+        <p className="text-muted-foreground">Monitor and manage all client tasks across your agency</p>
       </div>
 
       {/* Tabs */}
@@ -40,7 +40,7 @@ export default function TasksPage() {
 
       {activeTab === "preset" && (
         <div className="space-y-6">
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Tasks created from onboarding templates. These follow your standardized workflows.
           </p>
 
@@ -49,8 +49,8 @@ export default function TasksPage() {
             <Card>
               <CardContent className="p-4 text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <FileText className="w-5 h-5 text-gray-600" />
-                  <span className="text-sm text-gray-600">Total</span>
+                  <FileText className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Total</span>
                 </div>
                 <div className="text-2xl font-bold">0</div>
               </CardContent>
@@ -59,8 +59,8 @@ export default function TasksPage() {
             <Card>
               <CardContent className="p-4 text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Clock className="w-5 h-5 text-yellow-600" />
-                  <span className="text-sm text-gray-600">Pending</span>
+                  <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                  <span className="text-sm text-muted-foreground">Pending</span>
                 </div>
                 <div className="text-2xl font-bold">0</div>
               </CardContent>
@@ -69,8 +69,8 @@ export default function TasksPage() {
             <Card>
               <CardContent className="p-4 text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <AlertCircle className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm text-gray-600">In Progress</span>
+                  <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm text-muted-foreground">In Progress</span>
                 </div>
                 <div className="text-2xl font-bold">0</div>
               </CardContent>
@@ -79,8 +79,8 @@ export default function TasksPage() {
             <Card>
               <CardContent className="p-4 text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm text-gray-600">Completed</span>
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <span className="text-sm text-muted-foreground">Completed</span>
                 </div>
                 <div className="text-2xl font-bold">0</div>
               </CardContent>
@@ -89,8 +89,8 @@ export default function TasksPage() {
             <Card>
               <CardContent className="p-4 text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <AlertCircle className="w-5 h-5 text-orange-600" />
-                  <span className="text-sm text-gray-600">Waiting</span>
+                  <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                  <span className="text-sm text-muted-foreground">Waiting</span>
                 </div>
                 <div className="text-2xl font-bold">0</div>
               </CardContent>
@@ -100,7 +100,7 @@ export default function TasksPage() {
           {/* Search and Filter */}
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input placeholder="Search tasks..." className="pl-10" />
             </div>
             <Select defaultValue="all">
@@ -119,16 +119,16 @@ export default function TasksPage() {
 
           {/* Empty State */}
           <div className="text-center py-20">
-            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No preset tasks found</h3>
-            <p className="text-gray-600">No preset tasks exist yet. Create templates and assign them to clients.</p>
+            <FileText className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">No preset tasks found</h3>
+            <p className="text-muted-foreground">No preset tasks exist yet. Create templates and assign them to clients.</p>
           </div>
         </div>
       )}
 
       {activeTab === "custom" && (
         <div className="space-y-6">
-          <p className="text-gray-600">Custom tasks created manually for specific client needs.</p>
+          <p className="text-muted-foreground">Custom tasks created manually for specific client needs.</p>
 
           {/* Search and Filter */}
           <div className="flex items-center gap-4">
@@ -156,15 +156,15 @@ export default function TasksPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                     <div>
                       <h3 className="font-medium">Setup Google Analytics</h3>
-                      <p className="text-sm text-gray-600">John Smith - Tech Startup Inc</p>
+                      <p className="text-sm text-muted-foreground">John Smith - Tech Startup Inc</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm text-green-600 font-medium">Completed</div>
-                    <div className="text-xs text-gray-500">2 days ago</div>
+                    <div className="text-sm text-green-600 dark:text-green-400 font-medium">Completed</div>
+                    <div className="text-xs text-muted-foreground/70">2 days ago</div>
                   </div>
                 </div>
               </CardContent>
@@ -174,15 +174,15 @@ export default function TasksPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-blue-600" />
+                    <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     <div>
                       <h3 className="font-medium">Brand Guidelines Review</h3>
-                      <p className="text-sm text-gray-600">Sarah Johnson - Design Co</p>
+                      <p className="text-sm text-muted-foreground">Sarah Johnson - Design Co</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm text-blue-600 font-medium">In Progress</div>
-                    <div className="text-xs text-gray-500">Started yesterday</div>
+                    <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">In Progress</div>
+                    <div className="text-xs text-muted-foreground/70">Started yesterday</div>
                   </div>
                 </div>
               </CardContent>
@@ -192,15 +192,15 @@ export default function TasksPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-yellow-600" />
+                    <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                     <div>
                       <h3 className="font-medium">Contract Signing</h3>
-                      <p className="text-sm text-gray-600">Mike Wilson - Wilson Consulting</p>
+                      <p className="text-sm text-muted-foreground">Mike Wilson - Wilson Consulting</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm text-yellow-600 font-medium">Pending</div>
-                    <div className="text-xs text-gray-500">Due in 3 days</div>
+                    <div className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">Pending</div>
+                    <div className="text-xs text-muted-foreground/70">Due in 3 days</div>
                   </div>
                 </div>
               </CardContent>

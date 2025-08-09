@@ -2,33 +2,106 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, ArrowLeft, Eye, Check } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Calendar, ArrowLeft, Eye, EyeOff, Check } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
 
 export default function SignUpPage() {
   const [step, setStep] = useState(1)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const { signUp } = useAuth()
+  const router = useRouter()
+
+  // Form data state
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    agencyName: "",
+    agencyUrl: "",
+    website: "",
+    phone: "",
+    billingAddress: "",
+    city: "",
+    postalCode: ""
+  })
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleStep1Submit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match")
+      return
+    }
+    
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters")
+      return
+    }
+    
+    setStep(2)
+  }
+
+  const handleStep2Submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+
+    const { error } = await signUp(formData.email, formData.password, {
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      agency_name: formData.agencyName,
+      agency_url: formData.agencyUrl,
+      website: formData.website,
+      phone: formData.phone,
+      billing_address: formData.billingAddress,
+      city: formData.city,
+      postal_code: formData.postalCode
+    })
+    
+    if (error) {
+      setError(error.message)
+    } else {
+      router.push("/dashboard")
+    }
+    
+    setLoading(false)
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <div className="max-w-6xl mx-auto">
-        <Link href="/pricing" className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-8">
+        <Link href="/pricing" className="flex items-center gap-2 text-primary hover:text-primary/80 mb-8">
           <ArrowLeft className="w-4 h-4" />
           Back to pricing
         </Link>
 
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center">
-            <Calendar className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
+            <Calendar className="w-8 h-8 text-primary-foreground" />
           </div>
         </div>
 
-        <h1 className="text-center text-3xl font-bold text-gray-900 mb-2">Create Your Account</h1>
-        <p className="text-center text-gray-600 mb-8">Get started with PlankPort Free plan</p>
+        <h1 className="text-center text-3xl font-bold text-foreground mb-2">Create Your Account</h1>
+        <p className="text-center text-muted-foreground mb-8">Get started with PlankPort Free plan</p>
 
         <div className="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {/* Form Section */}
@@ -39,34 +112,34 @@ export default function SignUpPage() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                       step === 1
-                        ? "bg-blue-600 text-white"
+                        ? "bg-primary text-primary-foreground"
                         : step > 1
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-200 text-gray-600"
+                          ? "bg-green-600 dark:bg-green-500 text-white"
+                          : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {step > 1 ? <Check className="w-4 h-4" /> : "1"}
                   </div>
-                  <span className={`font-medium ${step === 1 ? "text-gray-900" : "text-gray-500"}`}>Personal Info</span>
+                  <span className={`font-medium ${step === 1 ? "text-foreground" : "text-muted-foreground"}`}>Personal Info</span>
 
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                       step === 2
-                        ? "bg-blue-600 text-white"
+                        ? "bg-primary text-primary-foreground"
                         : step > 2
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-200 text-gray-600"
+                          ? "bg-green-600 dark:bg-green-500 text-white"
+                          : "bg-muted text-muted-foreground"
                     }`}
                   >
                     2
                   </div>
-                  <span className={`font-medium ${step === 2 ? "text-gray-900" : "text-gray-500"}`}>Agency Info</span>
+                  <span className={`font-medium ${step === 2 ? "text-foreground" : "text-muted-foreground"}`}>Agency Info</span>
                 </div>
               </CardHeader>
 
               <CardContent>
                 {step === 1 && (
-                  <form className="space-y-6">
+                  <form className="space-y-6" onSubmit={handleStep1Submit}>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <Input
@@ -76,6 +149,8 @@ export default function SignUpPage() {
                           required
                           placeholder="First Name"
                           className="h-12"
+                          value={formData.firstName}
+                          onChange={(e) => handleInputChange("firstName", e.target.value)}
                         />
                       </div>
                       <div>
@@ -86,6 +161,8 @@ export default function SignUpPage() {
                           required
                           placeholder="Last Name"
                           className="h-12"
+                          value={formData.lastName}
+                          onChange={(e) => handleInputChange("lastName", e.target.value)}
                         />
                       </div>
                     </div>
@@ -98,6 +175,8 @@ export default function SignUpPage() {
                         required
                         placeholder="Email Address"
                         className="h-12"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange("email", e.target.value)}
                       />
                     </div>
 
@@ -110,13 +189,19 @@ export default function SignUpPage() {
                           required
                           placeholder="Password (at least 8 characters)"
                           className="h-12 pr-10"
+                          value={formData.password}
+                          onChange={(e) => handleInputChange("password", e.target.value)}
                         />
                         <button
                           type="button"
                           className="absolute inset-y-0 right-0 pr-3 flex items-center"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -130,25 +215,37 @@ export default function SignUpPage() {
                           required
                           placeholder="Confirm Password"
                           className="h-12 pr-10"
+                          value={formData.confirmPassword}
+                          onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                         />
                         <button
                           type="button"
                           className="absolute inset-y-0 right-0 pr-3 flex items-center"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         >
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          )}
                         </button>
                       </div>
                     </div>
 
-                    <Button type="button" className="w-full h-12 text-base" onClick={() => setStep(2)}>
+                    {error && (
+                      <div className="text-red-600 text-sm text-center">
+                        {error}
+                      </div>
+                    )}
+
+                    <Button type="submit" className="w-full h-12 text-base">
                       Continue
                     </Button>
                   </form>
                 )}
 
                 {step === 2 && (
-                  <form className="space-y-6">
+                  <form className="space-y-6" onSubmit={handleStep2Submit}>
                     <div>
                       <Input
                         id="agencyName"
@@ -157,12 +254,14 @@ export default function SignUpPage() {
                         required
                         placeholder="Agency Name"
                         className="h-12"
+                        value={formData.agencyName}
+                        onChange={(e) => handleInputChange("agencyName", e.target.value)}
                       />
                     </div>
 
                     <div>
                       <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-border bg-muted text-muted-foreground text-sm">
                           plankport.com/
                         </span>
                         <Input
@@ -172,19 +271,37 @@ export default function SignUpPage() {
                           required
                           placeholder="your-agency"
                           className="h-12 rounded-l-none"
+                          value={formData.agencyUrl}
+                          onChange={(e) => handleInputChange("agencyUrl", e.target.value)}
                         />
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         This will be your agency's unique URL for client access
                       </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Input id="website" name="website" type="url" placeholder="Website URL" className="h-12" />
+                        <Input 
+                          id="website" 
+                          name="website" 
+                          type="url" 
+                          placeholder="Website URL" 
+                          className="h-12" 
+                          value={formData.website}
+                          onChange={(e) => handleInputChange("website", e.target.value)}
+                        />
                       </div>
                       <div>
-                        <Input id="phone" name="phone" type="tel" placeholder="Phone Number" className="h-12" />
+                        <Input 
+                          id="phone" 
+                          name="phone" 
+                          type="tel" 
+                          placeholder="Phone Number" 
+                          className="h-12" 
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange("phone", e.target.value)}
+                        />
                       </div>
                     </div>
 
@@ -195,12 +312,22 @@ export default function SignUpPage() {
                         type="text"
                         placeholder="Billing Address"
                         className="h-12"
+                        value={formData.billingAddress}
+                        onChange={(e) => handleInputChange("billingAddress", e.target.value)}
                       />
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Input id="city" name="city" type="text" placeholder="City" className="h-12" />
+                        <Input 
+                          id="city" 
+                          name="city" 
+                          type="text" 
+                          placeholder="City" 
+                          className="h-12" 
+                          value={formData.city}
+                          onChange={(e) => handleInputChange("city", e.target.value)}
+                        />
                       </div>
                       <div>
                         <Input
@@ -209,9 +336,17 @@ export default function SignUpPage() {
                           type="text"
                           placeholder="Postal Code"
                           className="h-12"
+                          value={formData.postalCode}
+                          onChange={(e) => handleInputChange("postalCode", e.target.value)}
                         />
                       </div>
                     </div>
+
+                    {error && (
+                      <div className="text-red-600 text-sm text-center">
+                        {error}
+                      </div>
+                    )}
 
                     <div className="flex gap-4">
                       <Button
@@ -219,11 +354,12 @@ export default function SignUpPage() {
                         variant="outline"
                         className="h-12 bg-transparent"
                         onClick={() => setStep(1)}
+                        disabled={loading}
                       >
                         Back
                       </Button>
-                      <Button type="submit" className="flex-1 h-12 text-base">
-                        Create Account
+                      <Button type="submit" className="flex-1 h-12 text-base" disabled={loading}>
+                        {loading ? "Creating Account..." : "Create Account"}
                       </Button>
                     </div>
                   </form>
@@ -241,7 +377,7 @@ export default function SignUpPage() {
                     Free Plan
                   </Badge>
                   <div className="text-3xl font-bold">
-                    $0<span className="text-base font-normal text-gray-600">/forever</span>
+                    $0<span className="text-base font-normal text-muted-foreground">/forever</span>
                   </div>
                 </div>
               </CardHeader>
@@ -261,23 +397,23 @@ export default function SignUpPage() {
                   <h4 className="font-medium mb-3">Included features:</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-600" />
+                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                       <span>Basic task management</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-600" />
+                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                       <span>Client portal</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-600" />
+                      <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                       <span>Email notifications</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="border-t pt-4 text-center">
-                  <p className="text-sm text-gray-600 mb-2">Already have an account?</p>
-                  <Link href="/signin" className="text-blue-600 hover:text-blue-500 font-medium">
+                  <p className="text-sm text-muted-foreground mb-2">Already have an account?</p>
+                  <Link href="/signin" className="text-primary hover:text-primary/80 font-medium">
                     Sign In
                   </Link>
                 </div>

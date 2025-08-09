@@ -12,8 +12,8 @@ export default function ClientsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Client Management</h1>
-          <p className="text-gray-600">Manage your clients and their onboarding progress</p>
+          <h1 className="text-2xl font-bold text-foreground">Client Management</h1>
+          <p className="text-muted-foreground">Manage your clients and their onboarding progress</p>
         </div>
         <Button>
           <Plus className="w-4 h-4 mr-2" />
@@ -24,7 +24,7 @@ export default function ClientsPage() {
       {/* Search and Filter */}
       <div className="flex items-center gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input placeholder="Search clients..." className="pl-10" />
         </div>
         <Select defaultValue="all">
@@ -57,29 +57,29 @@ export default function ClientsPage() {
             <h3 className="font-semibold text-lg mb-1">John Smith</h3>
 
             <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Building className="w-4 h-4" />
                 Tech Startup Inc
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4" />
                 john@techstartup.com
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4" />
                 +1 (555) 123-4567
               </div>
             </div>
 
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-600">Status:</span>
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                 active
               </Badge>
             </div>
 
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-600">Added:</span>
+              <span className="text-sm text-muted-foreground">Added:</span>
               <span className="text-sm">8/2/2025</span>
             </div>
 
@@ -103,29 +103,29 @@ export default function ClientsPage() {
             <h3 className="font-semibold text-lg mb-1">Sarah Johnson</h3>
 
             <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Building className="w-4 h-4" />
                 Design Co
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4" />
                 sarah@designco.com
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4" />
                 +1 (555) 987-6543
               </div>
             </div>
 
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-600">Status:</span>
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                 active
               </Badge>
             </div>
 
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-600">Added:</span>
+              <span className="text-sm text-muted-foreground">Added:</span>
               <span className="text-sm">7/26/2025</span>
             </div>
 
@@ -149,29 +149,29 @@ export default function ClientsPage() {
             <h3 className="font-semibold text-lg mb-1">Mike Wilson</h3>
 
             <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Building className="w-4 h-4" />
                 Wilson Consulting
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4" />
                 mike@consulting.com
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4" />
                 +1 (555) 456-7890
               </div>
             </div>
 
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-600">Status:</span>
-              <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <Badge variant="secondary" className="bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200">
                 inactive
               </Badge>
             </div>
 
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-600">Added:</span>
+              <span className="text-sm text-muted-foreground">Added:</span>
               <span className="text-sm">7/19/2025</span>
             </div>
 

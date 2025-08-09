@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Check, Zap, Rocket, Building, ArrowUpRight } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function PricingPage() {
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("monthly")
@@ -19,7 +20,7 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -30,18 +31,19 @@ export default function PricingPage() {
             <span className="font-semibold text-lg">PlankPort</span>
           </div>
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="/" className="text-gray-600 hover:text-gray-900">
+            <Link href="/" className="text-muted-foreground hover:text-foreground">
               Home
             </Link>
             <Link href="/pricing" className="text-blue-600 font-medium">
               Pricing
             </Link>
-            <Link href="/about" className="text-gray-600 hover:text-gray-900">
+            <Link href="/about" className="text-muted-foreground hover:text-foreground">
               About
             </Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href="/signin" className="text-gray-600 hover:text-gray-900">
+            <ThemeToggle />
+            <Link href="/signin" className="text-muted-foreground hover:text-foreground">
               Sign in
             </Link>
             <Button asChild>
@@ -55,7 +57,7 @@ export default function PricingPage() {
       <section className="py-20 px-4">
         <div className="container mx-auto text-center max-w-4xl">
           <h1 className="text-5xl font-bold mb-4">Simple, transparent pricing</h1>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-muted-foreground mb-8">
             Choose the perfect plan for your agency. Start free and scale as you grow.
           </p>
 
@@ -86,7 +88,7 @@ export default function PricingPage() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Choose Your Plan</h2>
-            <p className="text-xl text-gray-600">Upgrade your account to unlock more features</p>
+            <p className="text-xl text-muted-foreground">Upgrade your account to unlock more features</p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -97,7 +99,7 @@ export default function PricingPage() {
                   <Zap className="w-6 h-6 text-blue-600" />
                 </div>
                 <CardTitle className="text-xl mb-2">Free Plan</CardTitle>
-                <p className="text-gray-600 mb-4">Perfect for getting started</p>
+                <p className="text-muted-foreground mb-4">Perfect for getting started</p>
                 <div className="text-4xl font-bold">Free</div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -132,10 +134,10 @@ export default function PricingPage() {
                   <Rocket className="w-6 h-6 text-blue-600" />
                 </div>
                 <CardTitle className="text-xl mb-2">Startup Plan</CardTitle>
-                <p className="text-gray-600 mb-4">Great for growing businesses</p>
+                <p className="text-muted-foreground mb-4">Great for growing businesses</p>
                 <div className="text-4xl font-bold">
                   ${getPrice(99)}{" "}
-                  <span className="text-base font-normal text-gray-600">
+                  <span className="text-base font-normal text-muted-foreground">
                     /{billingPeriod === "monthly" ? "month" : "year"}
                   </span>
                 </div>

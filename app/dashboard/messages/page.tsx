@@ -32,25 +32,25 @@ export default function MessagesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+        <h1 className="text-2xl font-bold text-foreground">Messages</h1>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 h-[600px]">
         {/* Conversations List */}
-        <div className="lg:col-span-1 bg-white rounded-lg border border-gray-200">
-          <div className="p-4 border-b border-gray-200">
+        <div className="lg:col-span-1 bg-card rounded-lg border border-border">
+          <div className="p-4 border-b border-border">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input placeholder="Search conversations..." className="pl-10" />
             </div>
           </div>
 
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-border">
             {conversations.map((conversation) => (
               <div
                 key={conversation.id}
-                className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                  selectedConversation === conversation.id ? "bg-blue-50 border-r-2 border-blue-600" : ""
+                className={`p-4 cursor-pointer hover:bg-muted/50 ${
+                  selectedConversation === conversation.id ? "bg-primary/10 border-r-2 border-primary" : ""
                 }`}
                 onClick={() => setSelectedConversation(conversation.id)}
               >
@@ -72,9 +72,9 @@ export default function MessagesPage() {
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-blue-600 font-medium">{conversation.task}</p>
-                    <p className="text-sm text-gray-600 truncate">{conversation.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">{conversation.time}</p>
+                    <p className="text-sm text-primary font-medium">{conversation.task}</p>
+                    <p className="text-sm text-muted-foreground truncate">{conversation.message}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">{conversation.time}</p>
                   </div>
                 </div>
               </div>
@@ -83,30 +83,30 @@ export default function MessagesPage() {
         </div>
 
         {/* Chat Area */}
-        <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200">
+        <div className="lg:col-span-2 bg-card rounded-lg border border-border">
           {selectedConversation ? (
             <div className="h-full flex flex-col">
-              <div className="p-4 border-b border-gray-200">
+              <div className="p-4 border-b border-border">
                 <h3 className="font-medium">{conversations.find((c) => c.id === selectedConversation)?.name}</h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   {conversations.find((c) => c.id === selectedConversation)?.task}
                 </p>
               </div>
               <div className="flex-1 p-4">
                 {/* Chat messages would go here */}
-                <div className="text-center text-gray-500 mt-20">
+                <div className="text-center text-muted-foreground mt-20">
                   <p>Start messaging with your client</p>
                 </div>
               </div>
-              <div className="p-4 border-t border-gray-200">
+              <div className="p-4 border-t border-border">
                 <Input placeholder="Type a message..." />
               </div>
             </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center">
-              <Users className="w-16 h-16 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Select a conversation</h3>
-              <p className="text-gray-600">Choose a conversation from the list to start messaging</p>
+              <Users className="w-16 h-16 text-muted-foreground/50 mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">Select a conversation</h3>
+              <p className="text-muted-foreground">Choose a conversation from the list to start messaging</p>
             </div>
           )}
         </div>
