@@ -6,9 +6,9 @@ import { AuthProvider } from '@/lib/auth-context'
 import { ThemeProvider } from '@/components/theme-provider'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'PlankPort - Client Onboarding Platform',
+  description: 'Streamline your agency\'s client onboarding with automated workflows, real-time tracking, and professional templates.',
+  generator: 'PlankPort',
 }
 
 export default function RootLayout({
