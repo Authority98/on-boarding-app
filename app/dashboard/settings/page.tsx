@@ -7,6 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { User, Building, CreditCard, Bell, Shield } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
+
+// Helper function to get user initials
+function getUserInitials(email: string): string {
+  if (!email) return "U"
+  const parts = email.split("@")[0].split(".")
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase()
+  }
+  return email[0].toUpperCase()
+}
 
 const settingsNavigation = [
   { name: "Profile", icon: User, id: "profile" },
@@ -17,7 +28,13 @@ const settingsNavigation = [
 ]
 
 export default function SettingsPage() {
-  const [activeSection, setActiveSection] = useState("notifications")
+  const [activeSection, setActiveSection] = useState("profile")
+  const { user } = useAuth()
+  
+  // Extract user information
+  const userEmail = user?.email || ""
+  const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User"
+  const userInitials = getUserInitials(userEmail)
 
   return (
     <div className="space-y-6">
@@ -112,7 +129,9 @@ export default function SettingsPage() {
               <CardContent className="space-y-6">
                 <div className="flex items-center gap-4">
                   <Avatar className="w-16 h-16">
-                    <AvatarFallback>DU</AvatarFallback>
+                    <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">
+                      {userInitials}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <Button variant="outline" size="sm">
@@ -125,18 +144,18 @@ export default function SettingsPage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
-                    <Input defaultValue="Demo User" />
+                    <Input defaultValue={userName} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
-                    <Input defaultValue="dasdasd@dsad.com" disabled />
+                    <Input defaultValue={userEmail} disabled />
                     <p className="text-sm text-muted-foreground mt-1">Contact support to change your email address</p>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Phone Number</label>
-                  <Input placeholder="+1 (555) 123-4567" />
+                  <Input placeholder="+1 (555) 123-4567" defaultValue={user?.user_metadata?.phone || ""} />
                 </div>
 
                 <Button>Save Changes</Button>
@@ -188,17 +207,26 @@ export default function SettingsPage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Agency Name</label>
-                    <Input placeholder="Your Agency Name" />
+                    <Input 
+                      placeholder="Your Agency Name" 
+                      defaultValue={user?.user_metadata?.agency_name || ""}
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Website</label>
-                    <Input placeholder="https://youragency.com" />
+                    <Input 
+                      placeholder="https://youragency.com" 
+                      defaultValue={user?.user_metadata?.website || ""}
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Phone Number</label>
-                  <Input placeholder="+1 (555) 123-4567" />
+                  <label className="block text-sm font-medium text-foreground mb-2">Agency Phone</label>
+                  <Input 
+                    placeholder="+1 (555) 123-4567" 
+                    defaultValue={user?.user_metadata?.agency_phone || ""}
+                  />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">

@@ -26,6 +26,7 @@ import { ProtectedRoute } from "@/components/protected-route"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useAuth } from "@/lib/auth-context"
 import { Toaster } from "sonner"
+import { NotificationDropdown } from "@/components/notification-dropdown"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -47,17 +48,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   const getUserInitials = () => {
-    if (user?.user_metadata?.first_name && user?.user_metadata?.last_name) {
-      return `${user.user_metadata.first_name[0]}${user.user_metadata.last_name[0]}`
+    if (!user) return "U"
+    
+    const email = user.email || ""
+    const name = user.user_metadata?.full_name || user.user_metadata?.name || ""
+    
+    if (name) {
+      const nameParts = name.split(" ")
+      if (nameParts.length >= 2) {
+        return (nameParts[0][0] + nameParts[1][0]).toUpperCase()
+      }
+      return nameParts[0][0].toUpperCase()
     }
-    return user?.email?.[0]?.toUpperCase() || 'U'
+    
+    return email[0]?.toUpperCase() || "U"
   }
 
   const getUserDisplayName = () => {
-    if (user?.user_metadata?.first_name && user?.user_metadata?.last_name) {
-      return `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
+    if (!user) return "User"
+    
+    const name = user.user_metadata?.full_name || user.user_metadata?.name
+    if (name) {
+      // Capitalize first and last names
+      return name.split(" ")
+        .map((part: string) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join(" ")
     }
-    return user?.email || 'User'
+    
+    const email = user.email || ""
+    const emailName = email.split("@")[0] || "User"
+    // Capitalize email-based name
+    return emailName.charAt(0).toUpperCase() + emailName.slice(1).toLowerCase()
   }
 
   return (
@@ -115,20 +136,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="w-5 h-5" />
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs"
-                  >
-                    3
-                  </Badge>
-                </Button>
+                <NotificationDropdown />
                 <div className="flex items-center gap-3">
                   <ThemeToggle />
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src="/placeholder.svg" />
-                    <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{getUserInitials()}</AvatarFallback>
                   </Avatar>
                   <span className="text-sm font-medium">{getUserDisplayName()}</span>
                   <Button

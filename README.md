@@ -21,11 +21,13 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 - Complete client management system with CRUD operations
 - Real-time client statistics (active, completed, success rate)
 - Recent clients display with status tracking
+- User-specific client isolation for privacy
 - Task tracking
 - Message center
 - Template management
-- Settings configuration
+- Settings configuration with real user data
 - Upgrade plan functionality
+- Personalized notifications and user avatars
 
 ### 🎨 UI/UX
 - Modern, responsive design with Tailwind CSS
@@ -127,6 +129,15 @@ lib/
 ```
 
 ## Recent Updates
+
+### v1.4.0 - Privacy & User Experience Enhancements
+- ✅ **User Privacy**: Implemented user-specific client filtering with `user_id` isolation
+- ✅ **Database Security**: Updated RLS policies to ensure users only see their own clients
+- ✅ **Real User Data**: Settings page now displays actual user information instead of demo data
+- ✅ **Personalized Avatars**: User initials automatically generated from email for profile pictures
+- ✅ **Enhanced Notifications**: Client-focused notification system with welcome messages
+- ✅ **UI Improvements**: Larger notification bell and improved visual hierarchy
+- ✅ **Data Migration**: Clean database migration to add user ownership to existing data
 
 ### v1.3.0 - Client Management & Real Data Dashboard
 - ✅ Complete client management system with CRUD operations
