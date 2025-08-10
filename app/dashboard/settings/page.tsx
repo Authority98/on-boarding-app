@@ -225,26 +225,11 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-foreground mb-2">Agency Phone</label>
                   <Input 
                     placeholder="+1 (555) 123-4567" 
-                    defaultValue={user?.user_metadata?.agency_phone || ""}
+                    defaultValue={user?.user_metadata?.phone || ""}
                   />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Primary Color</label>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary rounded border border-border"></div>
-                      <Input defaultValue="#3B82F6" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Secondary Color</label>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-secondary rounded border border-border"></div>
-                      <Input defaultValue="#1F2937" />
-                    </div>
-                  </div>
-                </div>
+
 
                 <Button>Save Changes</Button>
               </CardContent>

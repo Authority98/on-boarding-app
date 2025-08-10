@@ -130,6 +130,11 @@ lib/
 
 ## Recent Updates
 
+### v1.6.0 - Settings Optimization
+- ✅ **Agency Settings**: Removed color customization options from agency information section
+- ✅ **Phone Number Fix**: Fixed phone number display issue in agency settings
+- ✅ **UI Simplification**: Streamlined settings interface for better user experience
+
 ### v1.5.0 - Dark Mode & Visual Enhancements
 - ✅ **Dark Mode Support**: Complete dark mode implementation across all pages
 - ✅ **Template Management**: Enhanced templates page with dark mode styling and skeleton loading
