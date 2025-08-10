@@ -25,6 +25,7 @@ import { Suspense } from "react"
 import { ProtectedRoute } from "@/components/protected-route"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useAuth } from "@/lib/auth-context"
+import { Toaster } from "sonner"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -149,6 +150,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </Suspense>
       </div>
+      <Toaster />
     </ProtectedRoute>
   )
 }

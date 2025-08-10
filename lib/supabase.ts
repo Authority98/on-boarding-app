@@ -23,4 +23,105 @@ export const supabaseAdmin = createClient(
   }
 )
 
+// Client type definition
+export interface Client {
+  id?: string
+  name: string
+  company?: string
+  email: string
+  phone?: string
+  status: 'active' | 'inactive' | 'completed'
+  created_at?: string
+  updated_at?: string
+}
+
+// Client operations
+export const clientOperations = {
+  // Get all clients
+  async getAll() {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data as Client[]
+  },
+
+  // Get client by ID
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('id', id)
+      .single()
+    
+    if (error) throw error
+    return data as Client
+  },
+
+  // Create new client
+  async create(client: Omit<Client, 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('clients')
+      .insert([client])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as Client
+  },
+
+  // Update client
+  async update(id: string, updates: Partial<Omit<Client, 'id' | 'created_at' | 'updated_at'>>) {
+    const { data, error } = await supabase
+      .from('clients')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as Client
+  },
+
+  // Delete client
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('clients')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Search clients
+  async search(query: string) {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .or(`name.ilike.%${query}%,company.ilike.%${query}%,email.ilike.%${query}%`)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data as Client[]
+  },
+
+  // Filter clients by status
+  async filterByStatus(status: string) {
+    if (status === 'all') {
+      return this.getAll()
+    }
+    
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('status', status)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data as Client[]
+  }
+}
+
 export default supabase
