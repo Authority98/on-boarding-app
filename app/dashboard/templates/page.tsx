@@ -30,12 +30,12 @@ export default function TemplatesPage() {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FileTemplate className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <FileTemplate className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
                 <CardTitle className="text-lg">Standard Onboarding</CardTitle>
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
                   Active
                 </Badge>
               </div>
@@ -53,9 +53,9 @@ export default function TemplatesPage() {
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-muted/50 dark:bg-muted/20 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                  <span className="w-6 h-6 bg-blue-600 dark:bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
                     1
                   </span>
                   <div>
@@ -63,14 +63,14 @@ export default function TemplatesPage() {
                     <p className="text-xs text-muted-foreground">meeting scheduling</p>
                   </div>
                 </div>
-                <Badge variant="secondary" className="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
+                <Badge variant="secondary" className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">
                   Required
                 </Badge>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-muted/50 dark:bg-muted/20 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                  <span className="w-6 h-6 bg-blue-600 dark:bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
                     2
                   </span>
                   <div>
@@ -78,7 +78,7 @@ export default function TemplatesPage() {
                     <p className="text-xs text-muted-foreground">document upload</p>
                   </div>
                 </div>
-                <Badge variant="secondary" className="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
+                <Badge variant="secondary" className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">
                   Required
                 </Badge>
               </div>
@@ -96,12 +96,12 @@ export default function TemplatesPage() {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-5 h-5 text-green-600" />
+              <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
                 <CardTitle className="text-lg">Quick Setup</CardTitle>
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
                   Active
                 </Badge>
               </div>
@@ -111,25 +111,25 @@ export default function TemplatesPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-gray-600">Streamlined setup for simple projects</p>
+            <p className="text-muted-foreground">Streamlined setup for simple projects</p>
 
-            <div className="flex items-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>1 tasks</span>
               <span>45 min total</span>
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-muted/50 dark:bg-muted/20 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                  <span className="w-6 h-6 bg-green-600 dark:bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
                     1
                   </span>
                   <div>
                     <p className="font-medium text-sm">Project Brief</p>
-                    <p className="text-xs text-gray-600">form completion</p>
+                    <p className="text-xs text-muted-foreground">form completion</p>
                   </div>
                 </div>
-                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                <Badge variant="secondary" className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">
                   Required
                 </Badge>
               </div>
@@ -139,7 +139,7 @@ export default function TemplatesPage() {
               <Button variant="outline" size="sm">
                 Edit Tasks
               </Button>
-              <span className="text-xs text-gray-500">Updated 7/25/2025</span>
+              <span className="text-xs text-muted-foreground/70">Updated 7/25/2025</span>
             </div>
           </CardContent>
         </Card>

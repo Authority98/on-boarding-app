@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Users, CheckCircle, Clock, TrendingUp, Plus, Crown } from "lucide-react"
 import { clientOperations, type Client } from "@/lib/supabase"
 import { toast } from "sonner"
+import { Loading, PageLoadingSkeleton } from "@/components/ui/loading"
 
 export default function DashboardPage() {
   const [clients, setClients] = useState<Client[]>([])
@@ -84,6 +85,55 @@ export default function DashboardPage() {
 
   // Get recent clients (last 3)
   const recentClients = clients.slice(0, 3)
+  
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-8 bg-muted rounded animate-pulse w-64" />
+            <div className="h-4 bg-muted rounded animate-pulse w-96" />
+          </div>
+          <div className="h-10 bg-muted rounded animate-pulse w-32" />
+        </div>
+        
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-card border rounded-lg p-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="h-4 bg-muted rounded animate-pulse w-20" />
+                <div className="h-5 w-5 bg-muted rounded animate-pulse" />
+              </div>
+              <div className="h-8 bg-muted rounded animate-pulse w-16" />
+              <div className="h-3 bg-muted rounded animate-pulse w-24" />
+            </div>
+          ))}
+        </div>
+        
+        {/* Recent Clients Skeleton */}
+        <div className="bg-card border rounded-lg">
+          <div className="p-6 border-b">
+            <div className="h-6 bg-muted rounded animate-pulse w-32" />
+          </div>
+          <div className="p-6 space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center space-x-4">
+                <div className="h-10 w-10 bg-muted rounded-full animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-muted rounded animate-pulse w-32" />
+                  <div className="h-3 bg-muted rounded animate-pulse w-24" />
+                </div>
+                <div className="h-6 bg-muted rounded animate-pulse w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
   return (
     <div className="space-y-6">
       {/* Header */}

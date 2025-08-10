@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { LoadingButton } from "@/components/ui/loading-button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -116,9 +116,14 @@ export default function SignInPage() {
               </div>
             )}
 
-            <Button type="submit" className="w-full h-12 text-base" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
-            </Button>
+            <LoadingButton 
+              type="submit" 
+              className="w-full h-12 text-base" 
+              loading={loading}
+              loadingText="Signing in..."
+            >
+              Sign in
+            </LoadingButton>
 
             <div className="text-center">
               <span className="text-muted-foreground">Don't have an account? </span>

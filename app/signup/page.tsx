@@ -108,32 +108,40 @@ export default function SignUpPage() {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-4 mb-4">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                      step === 1
-                        ? "bg-primary text-primary-foreground"
-                        : step > 1
-                          ? "bg-green-600 dark:bg-green-500 text-white"
-                          : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {step > 1 ? <Check className="w-4 h-4" /> : "1"}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                        step === 1
+                          ? "bg-primary text-primary-foreground"
+                          : step > 1
+                            ? "bg-green-600 dark:bg-green-500 text-white"
+                            : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {step > 1 ? <Check className="w-4 h-4" /> : "1"}
+                    </div>
+                    <span className={`font-medium ${step === 1 ? "text-foreground" : "text-muted-foreground"}`}>Personal Info</span>
                   </div>
-                  <span className={`font-medium ${step === 1 ? "text-foreground" : "text-muted-foreground"}`}>Personal Info</span>
 
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                      step === 2
-                        ? "bg-primary text-primary-foreground"
-                        : step > 2
-                          ? "bg-green-600 dark:bg-green-500 text-white"
-                          : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    2
+                  <div className="flex-1 mx-6">
+                    <div className="h-px bg-border"></div>
                   </div>
-                  <span className={`font-medium ${step === 2 ? "text-foreground" : "text-muted-foreground"}`}>Agency Info</span>
+
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                        step === 2
+                          ? "bg-primary text-primary-foreground"
+                          : step > 2
+                            ? "bg-green-600 dark:bg-green-500 text-white"
+                            : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      2
+                    </div>
+                    <span className={`font-medium ${step === 2 ? "text-foreground" : "text-muted-foreground"}`}>Agency Info</span>
+                  </div>
                 </div>
               </CardHeader>
 

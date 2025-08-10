@@ -130,6 +130,15 @@ lib/
 
 ## Recent Updates
 
+### v1.5.0 - Dark Mode & Visual Enhancements
+- ✅ **Dark Mode Support**: Complete dark mode implementation across all pages
+- ✅ **Template Management**: Enhanced templates page with dark mode styling and skeleton loading
+- ✅ **About Page Redesign**: Updated with professional Unsplash images and improved team section
+- ✅ **Signup UX**: Added horizontal divider between Personal Info and Agency Info sections
+- ✅ **Image Optimization**: Replaced placeholder images with high-quality professional photos
+- ✅ **Consistent Theming**: Applied theme-aware colors and proper dark mode variants
+- ✅ **Loading States**: Comprehensive skeleton UI for better user experience
+
 ### v1.4.0 - Privacy & User Experience Enhancements
 - ✅ **User Privacy**: Implemented user-specific client filtering with `user_id` isolation
 - ✅ **Database Security**: Updated RLS policies to ensure users only see their own clients

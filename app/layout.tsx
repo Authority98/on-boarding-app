@@ -4,6 +4,7 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import { AuthProvider } from '@/lib/auth-context'
 import { ThemeProvider } from '@/components/theme-provider'
+import { LoadingProvider } from '@/components/loading-provider'
 
 export const metadata: Metadata = {
   title: 'PlankPort - Client Onboarding Platform',
@@ -35,7 +36,9 @@ html {
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
+            <LoadingProvider enableRouteLoading={true}>
+              {children}
+            </LoadingProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

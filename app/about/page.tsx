@@ -94,11 +94,11 @@ export default function AboutPage() {
             </div>
             <div className="relative">
               <Image
-                src="/images/team-photo.png"
-                alt="Team working together"
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+                alt="Team collaborating in modern office space"
                 width={600}
                 height={400}
-                className="rounded-lg shadow-lg"
+                className="rounded-lg shadow-lg object-cover"
               />
               <div className="absolute -bottom-6 -right-6 bg-background p-4 rounded-lg shadow-lg border">
                 <div className="text-2xl font-bold text-blue-600">500+</div>
@@ -122,7 +122,7 @@ export default function AboutPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="p-6 text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Users className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Client-Focused</h3>
@@ -181,7 +181,7 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="p-6 text-center">
               <Avatar className="w-20 h-20 mx-auto mb-4">
-                <AvatarImage src="/placeholder.svg" />
+                <AvatarImage src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80" className="object-cover" />
                 <AvatarFallback>AT</AvatarFallback>
               </Avatar>
               <h3 className="text-xl font-semibold mb-1">Alex Thompson</h3>
@@ -195,7 +195,7 @@ export default function AboutPage() {
 
             <Card className="p-6 text-center">
               <Avatar className="w-20 h-20 mx-auto mb-4">
-                <AvatarImage src="/placeholder.svg" />
+                <AvatarImage src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80" className="object-cover" />
                 <AvatarFallback>SK</AvatarFallback>
               </Avatar>
               <h3 className="text-xl font-semibold mb-1">Sarah Kim</h3>
@@ -209,7 +209,7 @@ export default function AboutPage() {
 
             <Card className="p-6 text-center">
               <Avatar className="w-20 h-20 mx-auto mb-4">
-                <AvatarImage src="/placeholder.svg" />
+                <AvatarImage src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80" className="object-cover" />
                 <AvatarFallback>MR</AvatarFallback>
               </Avatar>
               <h3 className="text-xl font-semibold mb-1">Marcus Rodriguez</h3>
@@ -223,7 +223,7 @@ export default function AboutPage() {
 
             <Card className="p-6 text-center">
               <Avatar className="w-20 h-20 mx-auto mb-4">
-                <AvatarImage src="/placeholder.svg" />
+                <AvatarImage src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80" className="object-cover" />
                 <AvatarFallback>EC</AvatarFallback>
               </Avatar>
               <h3 className="text-xl font-semibold mb-1">Emily Chen</h3>
