@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -5,9 +7,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useAuth } from "@/lib/auth-context"
 import { CheckCircle, Clock, Users, BarChart3, MessageSquare, FileText, Star, ArrowRight, Calendar } from 'lucide-react'
 
 export default function HomePage() {
+  const { user, loading } = useAuth()
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -26,10 +30,20 @@ export default function HomePage() {
           </nav>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link href="/signin" className="text-muted-foreground hover:text-foreground">Sign in</Link>
-            <Button asChild>
-              <Link href="/signup">Get Started</Link>
-            </Button>
+            {loading ? (
+              <div className="w-20 h-9 bg-muted animate-pulse rounded"></div>
+            ) : user ? (
+              <Button asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Link href="/signin" className="text-muted-foreground hover:text-foreground">Sign in</Link>
+                <Button asChild>
+                  <Link href="/signup">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -45,11 +59,21 @@ export default function HomePage() {
             progress tracking, and professional client portals that impress from day one.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
-            <Button size="lg" className="px-8" asChild>
-              <Link href="/signup">
-                Get Started <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
+            {loading ? (
+              <div className="w-32 h-11 bg-muted animate-pulse rounded"></div>
+            ) : user ? (
+              <Button size="lg" className="px-8" asChild>
+                <Link href="/dashboard">
+                  Go to Dashboard <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            ) : (
+              <Button size="lg" className="px-8" asChild>
+                <Link href="/signup">
+                  Get Started <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            )}
             <Button variant="outline" size="lg" className="px-8">
               Learn More
             </Button>
@@ -314,11 +338,21 @@ export default function HomePage() {
             PlankPort started when our founders, Alex and Sarah, were running their own marketing 
             agency. Help us transform how agencies onboard clients. Start with PlankPort today.
           </p>
-          <Button size="lg" className="px-8" asChild>
-            <Link href="/signup">
-              Get Started <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </Button>
+          {loading ? (
+            <div className="w-32 h-11 bg-muted animate-pulse rounded mx-auto"></div>
+          ) : user ? (
+            <Button size="lg" className="px-8" asChild>
+              <Link href="/dashboard">
+                Go to Dashboard <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          ) : (
+            <Button size="lg" className="px-8" asChild>
+              <Link href="/signup">
+                Get Started <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          )}
           <p className="text-sm text-muted-foreground mt-4">
             Free forever • No setup fees • Cancel anytime
           </p>

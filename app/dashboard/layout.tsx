@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Settings,
   LogOut,
+  CreditCard,
 } from "lucide-react"
 import { Suspense } from "react"
 import { ProtectedRoute } from "@/components/protected-route"
@@ -32,6 +33,7 @@ const navigation = [
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
   { name: "Tasks", href: "/dashboard/tasks", icon: CheckSquare },
   { name: "Messages", href: "/dashboard/messages", icon: MessageSquare },
+  { name: "Upgrade Plan", href: "/dashboard/upgrade", icon: CreditCard },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 

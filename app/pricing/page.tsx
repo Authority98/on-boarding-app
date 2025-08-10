@@ -1,23 +1,15 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, Check, Zap, Rocket, Building, ArrowUpRight } from "lucide-react"
+import { Calendar } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useAuth } from "@/lib/auth-context"
+import { PricingPlans } from "@/components/pricing-plans"
 
 export default function PricingPage() {
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("monthly")
-
-  const getPrice = (monthlyPrice: number) => {
-    if (billingPeriod === "annual") {
-      return Math.round(monthlyPrice * 0.8) // 20% discount
-    }
-    return monthlyPrice
-  }
+  const { user, loading } = useAuth()
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,191 +35,33 @@ export default function PricingPage() {
           </nav>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link href="/signin" className="text-muted-foreground hover:text-foreground">
-              Sign in
-            </Link>
-            <Button asChild>
-              <Link href="/signup">Get Started</Link>
-            </Button>
+            {loading ? (
+              <div className="w-20 h-9 bg-muted animate-pulse rounded"></div>
+            ) : user ? (
+              <Button asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Link href="/signin" className="text-muted-foreground hover:text-foreground">
+                  Sign in
+                </Link>
+                <Button asChild>
+                  <Link href="/signup">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center max-w-4xl">
-          <h1 className="text-5xl font-bold mb-4">Simple, transparent pricing</h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Choose the perfect plan for your agency. Start free and scale as you grow.
-          </p>
 
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <Button
-              variant={billingPeriod === "monthly" ? "default" : "outline"}
-              className="rounded-full"
-              onClick={() => setBillingPeriod("monthly")}
-            >
-              Monthly
-            </Button>
-            <Button
-              variant={billingPeriod === "annual" ? "default" : "outline"}
-              className="rounded-full"
-              onClick={() => setBillingPeriod("annual")}
-            >
-              Annual{" "}
-              <Badge variant="secondary" className="ml-2">
-                Save 20%
-              </Badge>
-            </Button>
-          </div>
-        </div>
-      </section>
 
       {/* Pricing Cards */}
       <section className="py-12 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Choose Your Plan</h2>
-            <p className="text-xl text-muted-foreground">Upgrade your account to unlock more features</p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Free Plan */}
-            <Card className="relative">
-              <CardHeader className="text-center pb-8">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Zap className="w-6 h-6 text-blue-600" />
-                </div>
-                <CardTitle className="text-xl mb-2">Free Plan</CardTitle>
-                <p className="text-muted-foreground mb-4">Perfect for getting started</p>
-                <div className="text-4xl font-bold">Free</div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Basic project management</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Up to 3 projects</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Email support</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Basic analytics</span>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full mt-6 bg-transparent">
-                  Current Plan
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Startup Plan */}
-            <Card className="relative border-blue-200 shadow-lg">
-              <CardHeader className="text-center pb-8">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Rocket className="w-6 h-6 text-blue-600" />
-                </div>
-                <CardTitle className="text-xl mb-2">Startup Plan</CardTitle>
-                <p className="text-muted-foreground mb-4">Great for growing businesses</p>
-                <div className="text-4xl font-bold">
-                  ${getPrice(99)}{" "}
-                  <span className="text-base font-normal text-muted-foreground">
-                    /{billingPeriod === "monthly" ? "month" : "year"}
-                  </span>
-                </div>
-                {billingPeriod === "annual" && <p className="text-sm text-green-600 mt-1">Save $238 per year</p>}
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Everything in Free</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Unlimited projects</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Priority support</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Advanced analytics</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Team collaboration</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Custom integrations</span>
-                  </div>
-                </div>
-                <Button className="w-full mt-6">
-                  <ArrowUpRight className="w-4 h-4 mr-2" />
-                  Upgrade Now
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Agency Plan */}
-            <Card className="relative">
-              <CardHeader className="text-center pb-8">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Building className="w-6 h-6 text-blue-600" />
-                </div>
-                <CardTitle className="text-xl mb-2">Agency Plan</CardTitle>
-                <p className="text-gray-600 mb-4">For established agencies</p>
-                <div className="text-4xl font-bold">
-                  ${getPrice(299)}{" "}
-                  <span className="text-base font-normal text-gray-600">
-                    /{billingPeriod === "monthly" ? "month" : "year"}
-                  </span>
-                </div>
-                {billingPeriod === "annual" && <p className="text-sm text-green-600 mt-1">Save $717 per year</p>}
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Everything in Startup</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">White-label solutions</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Advanced reporting</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Dedicated account manager</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">Custom development</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-sm">SLA guarantee</span>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full mt-6 bg-transparent">
-                  <ArrowUpRight className="w-4 h-4 mr-2" />
-                  Upgrade Now
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
+          <PricingPlans />
+          
           <div className="text-center mt-8">
             <p className="text-gray-600 mb-2">Need help choosing a plan?</p>
             <Button variant="link" className="text-blue-600">
@@ -238,27 +72,27 @@ export default function PricingPage() {
       </section>
 
       {/* Enterprise Section */}
-      <section className="py-20 px-4 bg-gray-50">
+      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-bold mb-4">Need something custom?</h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
             Large agencies can get custom solutions with dedicated support and integrations.
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div className="text-center">
               <h3 className="font-semibold mb-2">Custom Integrations</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
                 Connect with your existing CRM, project management, and analytics tools.
               </p>
             </div>
             <div className="text-center">
               <h3 className="font-semibold mb-2">On-Premise Deployment</h3>
-              <p className="text-gray-600 text-sm">Host PlankPort on your own infrastructure for maximum control.</p>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">Host PlankPort on your own infrastructure for maximum control.</p>
             </div>
             <div className="text-center">
               <h3 className="font-semibold mb-2">Dedicated Support</h3>
-              <p className="text-gray-600 text-sm">Get a dedicated customer success manager and priority support.</p>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">Get a dedicated customer success manager and priority support.</p>
             </div>
           </div>
 
@@ -408,6 +242,8 @@ export default function PricingPage() {
           </div>
         </div>
       </footer>
+
+
     </div>
   )
 }

@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -5,8 +7,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Calendar, Users, Lightbulb, Handshake, Award, ArrowRight } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { useAuth } from "@/lib/auth-context"
 
 export default function AboutPage() {
+  const { user, loading } = useAuth()
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -25,10 +29,20 @@ export default function AboutPage() {
           </nav>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link href="/signin" className="text-muted-foreground hover:text-foreground">Sign in</Link>
-            <Button asChild>
-              <Link href="/signup">Get Started</Link>
-            </Button>
+            {loading ? (
+              <div className="w-20 h-9 bg-muted animate-pulse rounded"></div>
+            ) : user ? (
+              <Button asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Link href="/signin" className="text-muted-foreground hover:text-foreground">Sign in</Link>
+                <Button asChild>
+                  <Link href="/signup">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
