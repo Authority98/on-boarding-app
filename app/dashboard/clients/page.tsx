@@ -9,6 +9,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, MoreHorizontal, Building, Mail, Phone, Filter } from "lucide-react"
 import { AddClientDialog } from "@/components/add-client-dialog"
+import { EditClientDialog } from "@/components/edit-client-dialog"
+import { FeatureInProgressDialog } from "@/components/feature-in-progress-dialog"
 import { clientOperations, type Client } from "@/lib/supabase"
 import { toast } from "sonner"
 
@@ -69,6 +71,12 @@ export default function ClientsPage() {
 
   const handleClientAdded = (newClient: Client) => {
     setClients(prev => [newClient, ...prev])
+  }
+
+  const handleClientUpdated = (updatedClient: Client) => {
+    setClients(prev => prev.map(client => 
+      client.id === updatedClient.id ? updatedClient : client
+    ))
   }
 
   const getInitials = (name: string) => {
@@ -160,9 +168,7 @@ export default function ClientsPage() {
                   <Avatar className="w-12 h-12">
                     <AvatarFallback>{getInitials(client.name)}</AvatarFallback>
                   </Avatar>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
+                  <EditClientDialog client={client} onClientUpdated={handleClientUpdated} />
                 </div>
 
                 <h3 className="font-semibold text-lg mb-1">{client.name}</h3>
@@ -198,9 +204,11 @@ export default function ClientsPage() {
                   <span className="text-sm">{client.created_at ? formatDate(client.created_at) : 'N/A'}</span>
                 </div>
 
-                <Button variant="outline" className="w-full bg-transparent">
-                  Dashboard Editor
-                </Button>
+                <FeatureInProgressDialog featureName="Dashboard Editor">
+                  <Button variant="outline" className="w-full bg-transparent">
+                    Dashboard Editor
+                  </Button>
+                </FeatureInProgressDialog>
               </CardContent>
             </Card>
           ))}
