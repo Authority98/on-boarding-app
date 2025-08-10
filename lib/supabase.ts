@@ -30,7 +30,7 @@ export interface Client {
   company?: string
   email: string
   phone?: string
-  status: 'active' | 'inactive' | 'completed'
+  status: 'active' | 'inactive' | 'pending' | 'completed'
   created_at?: string
   updated_at?: string
 }
