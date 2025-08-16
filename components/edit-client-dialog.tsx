@@ -56,7 +56,7 @@ export function EditClientDialog({ client, onClientUpdated }: EditClientDialogPr
       setOpen(false)
       toast.success("Client updated successfully")
     } catch (error) {
-      console.error("Error updating client:", error)
+      // Handle error silently
       toast.error("Failed to update client")
     } finally {
       setLoading(false)

@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { User, Building, CreditCard, Bell, Shield } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { getPlanDisplayName, getPlanFeatures } from "@/lib/subscription"
 
 // Helper function to get user initials
 function getUserInitials(email: string): string {
@@ -28,8 +29,8 @@ const settingsNavigation = [
 ]
 
 export default function SettingsPage() {
-  const [activeSection, setActiveSection] = useState("profile")
-  const { user } = useAuth()
+  const [activeTab, setActiveTab] = useState("profile")
+  const { user, subscription, subscriptionLoading } = useAuth()
   
   // Extract user information
   const userEmail = user?.email || ""
@@ -52,9 +53,9 @@ export default function SettingsPage() {
               {settingsNavigation.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveSection(item.id)}
+                  onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeSection === item.id
+                    activeTab === item.id
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
@@ -69,7 +70,7 @@ export default function SettingsPage() {
 
         {/* Settings Content */}
         <div className="lg:col-span-3">
-          {activeSection === "notifications" && (
+          {activeTab === "notifications" && (
             <Card>
               <CardHeader>
                 <CardTitle>Notification Preferences</CardTitle>
@@ -121,7 +122,7 @@ export default function SettingsPage() {
             </Card>
           )}
 
-          {activeSection === "profile" && (
+          {activeTab === "profile" && (
             <Card>
               <CardHeader>
                 <CardTitle>Profile Information</CardTitle>
@@ -163,7 +164,7 @@ export default function SettingsPage() {
             </Card>
           )}
 
-          {activeSection === "security" && (
+          {activeTab === "security" && (
             <Card>
               <CardHeader>
                 <CardTitle>Security Settings</CardTitle>
@@ -198,7 +199,7 @@ export default function SettingsPage() {
             </Card>
           )}
 
-          {activeSection === "agency" && (
+          {activeTab === "agency" && (
             <Card>
               <CardHeader>
                 <CardTitle>Agency Information</CardTitle>
@@ -236,23 +237,41 @@ export default function SettingsPage() {
             </Card>
           )}
 
-          {activeSection === "billing" && (
+          {activeTab === "billing" && (
             <Card>
               <CardHeader>
                 <CardTitle>Billing & Subscription</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                  <h3 className="font-medium text-primary mb-2">Free Plan</h3>
-                  <p className="text-sm text-primary/80 mb-3">You're currently on the Free plan</p>
-                  <div className="space-y-1 text-sm text-primary/80">
-                    <p>• Up to 3 clients</p>
-                    <p>• Basic task management</p>
-                    <p>• Email support</p>
-                  </div>
-                  <Button className="mt-4" size="sm">
-                    Upgrade Plan
-                  </Button>
+                  {subscriptionLoading ? (
+                    <div className="animate-pulse">
+                      <div className="h-4 bg-primary/20 rounded mb-2 w-24"></div>
+                      <div className="h-3 bg-primary/20 rounded mb-3 w-48"></div>
+                      <div className="space-y-2">
+                        <div className="h-3 bg-primary/20 rounded w-32"></div>
+                        <div className="h-3 bg-primary/20 rounded w-40"></div>
+                        <div className="h-3 bg-primary/20 rounded w-28"></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <h3 className="font-medium text-primary mb-2">{getPlanDisplayName(subscription?.plan_name || null)}</h3>
+                      <p className="text-sm text-primary/80 mb-3">
+                        You're currently on the {getPlanDisplayName(subscription?.plan_name || null)}
+                      </p>
+                      <div className="space-y-1 text-sm text-primary/80">
+                        {getPlanFeatures(subscription?.plan_name || null).map((feature, index) => (
+                          <p key={index}>• {feature}</p>
+                        ))}
+                      </div>
+                      {!subscription && (
+                        <Button className="mt-4" size="sm" asChild>
+                          <a href="/dashboard/upgrade">Upgrade Plan</a>
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 <div>

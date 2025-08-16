@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Check, Zap, Rocket, Building, ArrowUpRight } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { StripePopup } from '@/components/stripe-popup'
+import { getPlanDisplayName } from '@/lib/subscription'
 
 interface PricingPlansProps {
   showHeader?: boolean
@@ -18,10 +19,66 @@ interface PricingPlansProps {
 export function PricingPlans({ showHeader = true, showBillingToggle = true, className = '' }: PricingPlansProps) {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly')
   const [showStripePopup, setShowStripePopup] = useState(false)
-  const { user } = useAuth()
+  const [selectedPlan, setSelectedPlan] = useState<{
+    name: string;
+    priceId: string;
+    price: string;
+  } | null>(null)
+  const { user, subscription, subscriptionLoading } = useAuth()
 
   const getPrice = (monthlyPrice: number) => {
     return billingPeriod === 'annual' ? Math.round(monthlyPrice * 0.8) : monthlyPrice
+  }
+
+  // Helper function to check if user is on a specific plan
+  const isCurrentPlan = (planType: 'free' | 'startup' | 'agency') => {
+    if (!subscription) {
+      return planType === 'free'
+    }
+    
+    const currentPlan = subscription.plan_name?.toLowerCase() || ''
+    
+    switch (planType) {
+      case 'free':
+        return currentPlan === 'free' || currentPlan === '' || !subscription.plan_name || subscription.id === 'free-plan'
+      case 'startup':
+        return currentPlan.includes('startup')
+      case 'agency':
+        return currentPlan.includes('agency')
+      default:
+        return false
+    }
+  }
+
+  // Handle downgrade functionality
+  const handleDowngrade = async (targetPlan: 'free' | 'startup') => {
+    if (!user) return
+    
+    try {
+      const response = await fetch('/api/stripe/downgrade', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          targetPlan,
+          userId: user.id
+        })
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        alert(data.message || 'Downgrade successful!')
+        // Refresh the page to update subscription status
+        window.location.reload()
+      } else {
+        alert(data.error || 'Downgrade failed')
+      }
+    } catch (error) {
+      // Handle downgrade error
+      alert('An error occurred during downgrade')
+    }
   }
 
   return (
@@ -88,8 +145,19 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
               </div>
             </div>
             {user ? (
-              <Button variant="outline" className="w-full mt-6 bg-transparent cursor-pointer">
-                Current Plan
+              <Button 
+                variant="outline" 
+                className="w-full mt-6 bg-transparent cursor-pointer" 
+                disabled={isCurrentPlan('free')}
+                onClick={() => {
+                  if (!isCurrentPlan('free')) {
+                    if (confirm('Are you sure you want to downgrade to the Free plan? This will cancel your current subscription at the end of the billing period.')) {
+                      handleDowngrade('free')
+                    }
+                  }
+                }}
+              >
+                {isCurrentPlan('free') ? 'Current Plan' : 'Downgrade to Free'}
               </Button>
             ) : (
               <Button asChild variant="outline" className="w-full mt-6 cursor-pointer">
@@ -108,7 +176,7 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
             <CardTitle className="text-xl mb-2">Startup Plan</CardTitle>
             <p className="text-muted-foreground mb-4">Great for growing businesses</p>
             <div className="text-4xl font-bold">
-              ${getPrice(99)}{" "}
+              ${getPrice(29)}{" "}
               <span className="text-base font-normal text-muted-foreground">
                 /{billingPeriod === "monthly" ? "month" : "year"}
               </span>
@@ -143,11 +211,33 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
               </div>
             </div>
             <Button 
-              className="w-full mt-6 cursor-pointer"
-              onClick={() => setShowStripePopup(true)}
+              variant="outline" 
+              className="w-full mt-6 bg-transparent cursor-pointer"
+              onClick={() => {
+                if (isCurrentPlan('startup')) {
+                  return // Already on this plan
+                }
+                
+                // If user is on Agency plan, handle downgrade
+                if (isCurrentPlan('agency')) {
+                  if (confirm('Are you sure you want to downgrade to the Startup plan?')) {
+                    handleDowngrade('startup')
+                  }
+                  return
+                }
+                
+                // Otherwise, handle upgrade
+                setSelectedPlan({
+                  name: 'Startup Plan',
+                  priceId: billingPeriod === 'monthly' ? 'price_1RwJoKJqCJQV0KJvtvIAiMJp' : 'price_1RwJoLJqCJQV0KJvytdq2XPq',
+                  price: `$${getPrice(29)}/${billingPeriod === 'monthly' ? 'month' : 'year'}`
+                })
+                setShowStripePopup(true)
+              }}
+              disabled={isCurrentPlan('startup')}
             >
               <ArrowUpRight className="w-4 h-4 mr-2" />
-              {user ? "Upgrade Now" : "Get Started"}
+              {isCurrentPlan('startup') ? 'Current Plan' : (user ? (isCurrentPlan('agency') ? 'Downgrade' : 'Upgrade Now') : "Get Started")}
             </Button>
           </CardContent>
         </Card>
@@ -198,19 +288,38 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
             <Button 
               variant="outline" 
               className="w-full mt-6 bg-transparent cursor-pointer"
-              onClick={() => setShowStripePopup(true)}
+              onClick={() => {
+                if (isCurrentPlan('agency')) {
+                  return // Already on this plan
+                }
+                setSelectedPlan({
+                  name: 'Agency Plan',
+                  priceId: billingPeriod === 'monthly' ? 'price_1RwJoMJqCJQV0KJvwV3HyyIu' : 'price_1RwJoMJqCJQV0KJvhEd3P4vk',
+                  price: `$${getPrice(299)}/${billingPeriod === 'monthly' ? 'month' : 'year'}`
+                })
+                setShowStripePopup(true)
+              }}
+              disabled={isCurrentPlan('agency')}
             >
               <ArrowUpRight className="w-4 h-4 mr-2" />
-              {user ? "Upgrade Now" : "Get Started"}
+              {isCurrentPlan('agency') ? 'Current Plan' : (user ? "Upgrade Now" : "Get Started")}
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      <StripePopup 
-        isOpen={showStripePopup} 
-        onClose={() => setShowStripePopup(false)} 
-      />
+      {selectedPlan && (
+        <StripePopup 
+          isOpen={showStripePopup} 
+          onClose={() => {
+            setShowStripePopup(false)
+            setSelectedPlan(null)
+          }}
+          planName={selectedPlan.name}
+          priceId={selectedPlan.priceId}
+          price={selectedPlan.price}
+        />
+      )}
     </div>
   )
 }

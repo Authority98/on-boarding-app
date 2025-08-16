@@ -84,16 +84,29 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 ```
 
-4. Run the development server:
+4. Set up Stripe CLI for webhook testing (development only):
+```bash
+# Install Stripe CLI
+brew install stripe/stripe-cli/stripe
+
+# Forward webhooks to your local server
+export STRIPE_API_KEY=$(grep STRIPE_SECRET_KEY .env.local | cut -d '=' -f2)
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+
+# Copy the webhook signing secret from the CLI output and add it to .env.local
+```
+
+5. Run the development server:
 ```bash
 npm run dev
 # or
 pnpm dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Structure
 
@@ -129,6 +142,14 @@ lib/
 ```
 
 ## Recent Updates
+
+### v1.7.0 - Stripe Webhook Integration
+- ✅ **Webhook Processing**: Complete Stripe webhook integration for subscription updates
+- ✅ **Payment Flow**: End-to-end payment processing with Supabase data synchronization
+- ✅ **CLI Setup**: Stripe CLI configuration for local development webhook testing
+- ✅ **Environment Config**: Enhanced environment variable setup for webhook secrets
+- ✅ **Real-time Updates**: Automatic subscription status updates after successful payments
+- ✅ **Error Handling**: Comprehensive webhook error handling and logging
 
 ### v1.6.0 - Settings Optimization
 - ✅ **Agency Settings**: Removed color customization options from agency information section

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,10 +11,14 @@ import { Users, CheckCircle, Clock, TrendingUp, Plus, Crown } from "lucide-react
 import { clientOperations, type Client } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Loading, PageLoadingSkeleton } from "@/components/ui/loading"
+import { UpgradeSuccessPopup } from "@/components/upgrade-success-popup"
 
 export default function DashboardPage() {
+  const searchParams = useSearchParams()
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
+  const [showUpgradePopup, setShowUpgradePopup] = useState(false)
+  const [upgradePlan, setUpgradePlan] = useState('')
   const [stats, setStats] = useState({
     activeClients: 0,
     completedClients: 0,
@@ -23,7 +28,22 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadDashboardData()
-  }, [])
+    
+    // Check for upgrade success popup
+    const showUpgradeSuccess = searchParams.get('show_upgrade_success')
+    const plan = searchParams.get('plan')
+    
+    if (showUpgradeSuccess === 'true' && plan) {
+      setUpgradePlan(plan)
+      setShowUpgradePopup(true)
+      
+      // Clean up URL parameters
+      const url = new URL(window.location.href)
+      url.searchParams.delete('show_upgrade_success')
+      url.searchParams.delete('plan')
+      window.history.replaceState({}, '', url.toString())
+    }
+  }, [searchParams])
 
   const loadDashboardData = async () => {
     try {
@@ -44,7 +64,7 @@ export default function DashboardPage() {
         successRate
       })
     } catch (error) {
-      console.error('Error loading dashboard data:', error)
+      // Handle error silently
       toast.error('Failed to load dashboard data')
     } finally {
       setLoading(false)
@@ -281,6 +301,13 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Upgrade Success Popup */}
+      <UpgradeSuccessPopup
+        isOpen={showUpgradePopup}
+        onClose={() => setShowUpgradePopup(false)}
+        planName={upgradePlan}
+      />
     </div>
   )
 }

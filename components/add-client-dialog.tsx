@@ -68,7 +68,7 @@ export function AddClientDialog({ onClientAdded }: AddClientDialogProps) {
         status: "active",
       })
     } catch (error) {
-      console.error("Error adding client:", error)
+      // Handle error silently
       toast.error("Failed to add client. Please try again.")
     } finally {
       setLoading(false)

@@ -38,7 +38,7 @@ export default function ClientsPage() {
       const data = await clientOperations.getAll()
       setClients(data)
     } catch (error) {
-      console.error("Error loading clients:", error)
+      // Handle error silently
       toast.error("Failed to load clients")
     } finally {
       setLoading(false)
@@ -66,7 +66,7 @@ export default function ClientsPage() {
 
       setFilteredClients(filtered)
     } catch (error) {
-      console.error("Error filtering clients:", error)
+      // Handle error silently
     }
   }
 
