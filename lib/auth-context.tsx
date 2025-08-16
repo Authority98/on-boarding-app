@@ -51,10 +51,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true
     
     const initializeAuth = async () => {
+      // Environment-specific debugging
+      const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify')
+      const debugPrefix = isNetlify ? '🌐 NETLIFY' : '🏠 LOCALHOST'
+      
+      console.log(`${debugPrefix} Auth Context: Initializing...`)
+      
       // Add a small delay to ensure any URL-based session detection completes
       await new Promise(resolve => setTimeout(resolve, 100))
       
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      console.log(`${debugPrefix} Auth Context: Initial session:`, {
+        hasSession: !!session,
+        userId: session?.user?.id,
+        email: session?.user?.email,
+        sessionExpiry: session?.expires_at,
+        error: error?.message,
+        timestamp: new Date().toISOString()
+      })
       
       if (mounted) {
         setSession(session)
@@ -69,6 +84,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription: authSubscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      const isNetlify = typeof window !== 'undefined' && window.location.hostname.includes('netlify')
+      const debugPrefix = isNetlify ? '🌐 NETLIFY' : '🏠 LOCALHOST'
+      
+      console.log(`${debugPrefix} Auth Context: Auth state change:`, {
+        event,
+        hasSession: !!session,
+        userId: session?.user?.id,
+        email: session?.user?.email,
+        sessionExpiry: session?.expires_at,
+        timestamp: new Date().toISOString()
+      })
+      
       if (mounted) {
         setSession(session)
         setUser(session?.user ?? null)
