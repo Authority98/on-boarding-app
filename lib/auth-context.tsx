@@ -48,23 +48,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    let mounted = true
+    
+    const initializeAuth = async () => {
+      // Add a small delay to ensure any URL-based session detection completes
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (mounted) {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
+    }
+    
+    initializeAuth()
 
     // Listen for auth changes
     const {
       data: { subscription: authSubscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (mounted) {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
     })
 
-    return () => authSubscription.unsubscribe()
+    return () => {
+      mounted = false
+      authSubscription.unsubscribe()
+    }
   }, [])
 
   // Load subscription when user changes

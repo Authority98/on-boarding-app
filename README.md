@@ -52,6 +52,14 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 
 ## Recent Updates
 
+### v1.7.0 - Session Persistence & Upgrade Flow Fixes
+- ✅ **Session Persistence**: Fixed critical session loss issue after Stripe payment redirects
+- ✅ **Supabase Configuration**: Enhanced auth client with `autoRefreshToken`, `persistSession`, and `detectSessionInUrl` settings
+- ✅ **Upgrade Success Flow**: Implemented robust session restoration logic with immediate and fallback mechanisms
+- ✅ **Authentication Context**: Optimized auth context initialization with proper timing and mounted component handling
+- ✅ **User Experience**: Users now stay logged in throughout the entire payment and upgrade process
+- ✅ **Cross-Platform**: Fixed upgrade success flow for both localhost and Netlify deployments
+
 ### v1.6.0 - Netlify Deployment & Authentication Fixes
 - ✅ **Netlify Redirect Fix**: Resolved post-payment redirect issue where users were sent to signin instead of dashboard
 - ✅ **Authentication Handling**: Improved auth context initialization with proper retry logic for Netlify deployments
