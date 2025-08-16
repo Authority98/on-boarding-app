@@ -51,12 +51,14 @@ export async function getUserSubscription(userId: string): Promise<UserSubscript
       .limit(1)
       .maybeSingle()
 
-    // If no active subscription found, get the most recent one
+    // If no active subscription found, check if user has any paid subscriptions
+    // Only fallback to most recent if it's not a free plan
     if (!data && !error) {
       const result = await supabase
         .from('user_subscriptions')
         .select('*')
         .eq('user_id', userId)
+        .neq('plan_name', 'Free') // Exclude free plans from fallback
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle()
