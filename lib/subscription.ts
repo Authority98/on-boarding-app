@@ -6,6 +6,7 @@ export interface UserSubscription {
   stripe_customer_id: string | null
   stripe_subscription_id: string | null
   plan_name: string
+  billing_period?: string
   status: string
   created_at: string
   updated_at: string

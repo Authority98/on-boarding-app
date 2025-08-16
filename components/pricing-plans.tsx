@@ -30,24 +30,39 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
     return billingPeriod === 'annual' ? Math.round(monthlyPrice * 0.8) : monthlyPrice
   }
 
-  // Helper function to check if user is on a specific plan
+  // Helper function to check if user is on a specific plan and billing period
   const isCurrentPlan = (planType: 'free' | 'startup' | 'agency') => {
     if (!subscription) {
       return planType === 'free'
     }
     
     const currentPlan = subscription.plan_name?.toLowerCase() || ''
+    const currentBillingPeriod = subscription.billing_period || 'monthly'
     
     switch (planType) {
       case 'free':
         return currentPlan === 'free' || currentPlan === '' || !subscription.plan_name || subscription.id === 'free-plan'
       case 'startup':
-        return currentPlan.includes('startup')
+        return currentPlan.includes('startup') && currentBillingPeriod === billingPeriod
       case 'agency':
-        return currentPlan.includes('agency')
+        return currentPlan.includes('agency') && currentBillingPeriod === billingPeriod
       default:
         return false
     }
+  }
+  
+  // Helper function to check if user can upgrade billing period for same plan
+  const canUpgradeBillingPeriod = (planType: 'startup' | 'agency') => {
+    if (!subscription) return false
+    
+    const currentPlan = subscription.plan_name?.toLowerCase() || ''
+    const currentBillingPeriod = subscription.billing_period || 'monthly'
+    
+    // Can upgrade if on same plan type but different billing period
+    const isOnSamePlanType = planType === 'startup' ? currentPlan.includes('startup') : currentPlan.includes('agency')
+    const isDifferentBillingPeriod = currentBillingPeriod !== billingPeriod
+    
+    return isOnSamePlanType && isDifferentBillingPeriod
   }
 
   // Handle downgrade functionality
@@ -215,7 +230,18 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
               className="w-full mt-6 bg-transparent cursor-pointer"
               onClick={() => {
                 if (isCurrentPlan('startup')) {
-                  return // Already on this plan
+                  return // Already on this exact plan and billing period
+                }
+                
+                // If user can upgrade billing period for same plan
+                if (canUpgradeBillingPeriod('startup')) {
+                  setSelectedPlan({
+                    name: 'Startup Plan',
+                    priceId: billingPeriod === 'monthly' ? 'price_1RwJoKJqCJQV0KJvtvIAiMJp' : 'price_1RwJoLJqCJQV0KJvytdq2XPq',
+                    price: `$${getPrice(29)}/${billingPeriod === 'monthly' ? 'month' : 'year'}`
+                  })
+                  setShowStripePopup(true)
+                  return
                 }
                 
                 // If user is on Agency plan, handle downgrade
@@ -290,8 +316,20 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
               className="w-full mt-6 bg-transparent cursor-pointer"
               onClick={() => {
                 if (isCurrentPlan('agency')) {
-                  return // Already on this plan
+                  return // Already on this exact plan and billing period
                 }
+                
+                // If user can upgrade billing period for same plan
+                if (canUpgradeBillingPeriod('agency')) {
+                  setSelectedPlan({
+                    name: 'Agency Plan',
+                    priceId: billingPeriod === 'monthly' ? 'price_1RwJoMJqCJQV0KJvwV3HyyIu' : 'price_1RwJoMJqCJQV0KJvhEd3P4vk',
+                    price: `$${getPrice(299)}/${billingPeriod === 'monthly' ? 'month' : 'year'}`
+                  })
+                  setShowStripePopup(true)
+                  return
+                }
+                
                 setSelectedPlan({
                   name: 'Agency Plan',
                   priceId: billingPeriod === 'monthly' ? 'price_1RwJoMJqCJQV0KJvwV3HyyIu' : 'price_1RwJoMJqCJQV0KJvhEd3P4vk',
@@ -299,7 +337,7 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
                 })
                 setShowStripePopup(true)
               }}
-              disabled={isCurrentPlan('agency')}
+              disabled={isCurrentPlan('agency') && !canUpgradeBillingPeriod('agency')}
             >
               <ArrowUpRight className="w-4 h-4 mr-2" />
               {isCurrentPlan('agency') ? 'Current Plan' : (user ? "Upgrade Now" : "Get Started")}
