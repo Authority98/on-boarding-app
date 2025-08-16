@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { LoadingPage } from '@/components/loading-page'
 
-export default function UpgradeSuccessPage() {
+function UpgradeSuccessContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, refreshSubscription } = useAuth()
@@ -59,4 +59,12 @@ export default function UpgradeSuccessPage() {
 
   // This should not render as we redirect to dashboard
   return <LoadingPage />
+}
+
+export default function UpgradeSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingPage />}>
+      <UpgradeSuccessContent />
+    </Suspense>
+  )
 }
