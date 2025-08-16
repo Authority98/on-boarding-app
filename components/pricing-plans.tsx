@@ -41,7 +41,8 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
     
     switch (planType) {
       case 'free':
-        return currentPlan === 'free' || currentPlan === '' || !subscription.plan_name || subscription.id === 'free-plan'
+        // User is on free plan if plan_name is 'free' or if it's the fallback free-plan object
+        return currentPlan === 'free' || subscription.id === 'free-plan'
       case 'startup':
         return currentPlan.includes('startup') && currentBillingPeriod === billingPeriod
       case 'agency':
