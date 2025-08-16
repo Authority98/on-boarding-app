@@ -143,6 +143,13 @@ lib/
 
 ## Recent Updates
 
+### v1.8.0 - Webhook Fix & Plan Display Resolution
+- ✅ **Current Plan Display Fix**: Resolved incorrect "current plan" tag appearing on free plan
+- ✅ **Stripe CLI Authentication**: Fixed Stripe CLI authentication and webhook forwarding
+- ✅ **Real-time Webhook Processing**: Restored automatic subscription status updates from Stripe events
+- ✅ **Database Synchronization**: Ensured proper sync between Stripe subscriptions and Supabase data
+- ✅ **Development Workflow**: Streamlined local development setup with proper webhook testing
+
 ### v1.7.0 - Stripe Webhook Integration
 - ✅ **Webhook Processing**: Complete Stripe webhook integration for subscription updates
 - ✅ **Payment Flow**: End-to-end payment processing with Supabase data synchronization
