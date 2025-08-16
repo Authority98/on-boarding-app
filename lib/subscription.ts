@@ -40,12 +40,29 @@ export async function getUserSubscription(userId: string): Promise<UserSubscript
 
 
 
-    const { data, error } = await supabase
+    // First try to get an active subscription
+    let { data, error } = await supabase
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
+      .order('updated_at', { ascending: false })
+      .limit(1)
       .maybeSingle()
+
+    // If no active subscription found, get the most recent one
+    if (!data && !error) {
+      const result = await supabase
+        .from('user_subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      
+      data = result.data
+      error = result.error
+    }
 
     if (error) {
       // If table doesn't exist or RLS policy issues, return free plan

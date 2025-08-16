@@ -34,7 +34,14 @@ export async function POST(request: NextRequest) {
         const planName = session.metadata?.planName;
 
         if (userId && planName) {
-          // Update user subscription status in your database
+          // First, mark any existing subscriptions for this user as inactive
+          await supabase
+            .from('user_subscriptions')
+            .update({ status: 'inactive', updated_at: new Date().toISOString() })
+            .eq('user_id', userId)
+            .eq('status', 'active');
+
+          // Then create/update the new subscription
           const { error } = await supabase
             .from('user_subscriptions')
             .upsert({
@@ -45,6 +52,8 @@ export async function POST(request: NextRequest) {
               status: 'active',
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
+            }, {
+              onConflict: 'stripe_subscription_id'
             });
 
           if (error) {
