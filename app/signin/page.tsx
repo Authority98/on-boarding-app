@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { LoadingButton } from "@/components/ui/loading-button"
@@ -10,7 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Calendar, ArrowLeft, Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 
-export default function SignInPage() {
+function SignInForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -151,5 +151,28 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
+              <Calendar className="w-8 h-8 text-primary-foreground" />
+            </div>
+          </div>
+          <h2 className="text-center text-3xl font-bold text-foreground mb-2">Sign in to PlankPort</h2>
+          <p className="text-center text-muted-foreground mb-8">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignInForm />
+    </Suspense>
   )
 }
