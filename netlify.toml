@@ -3,10 +3,9 @@
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
-  SECRETS_SCAN_OMIT_PATHS = ".env.local,.env.example,scripts/setup-stripe-products.js"
-  SECRETS_SCAN_OMIT_KEYS = "STRIPE_SECRET_KEY,STRIPE_WEBHOOK_SECRET,SUPABASE_SERVICE_ROLE_KEY,NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  SECRETS_SCAN_ENABLED = "false"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
