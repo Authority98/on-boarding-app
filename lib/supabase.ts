@@ -10,22 +10,30 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // For server-side operations that require elevated permissions
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Only create admin client on server-side
+let supabaseAdmin: ReturnType<typeof createClient> | null = null
 
-if (!supabaseServiceKey) {
-  throw new Error('Missing required environment variable: SUPABASE_SERVICE_ROLE_KEY')
+if (typeof window === 'undefined') {
+  // Server-side only
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseServiceKey) {
+    throw new Error('Missing required environment variable: SUPABASE_SERVICE_ROLE_KEY')
+  }
+  
+  supabaseAdmin = createClient(
+    supabaseUrl,
+    supabaseServiceKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
 }
 
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  supabaseServiceKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
+export { supabaseAdmin }
 
 // Client type definition
 export interface Client {

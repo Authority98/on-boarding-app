@@ -47,7 +47,22 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 - **Authentication**: Supabase Auth
 - **Database**: Supabase (PostgreSQL)
 - **Payments**: Stripe
-- **Deployment**: Vercel
+- **Deployment**: Netlify
+- **Runtime**: Node.js 20
+
+## Recent Updates
+
+### Environment & Deployment Fixes
+- ✅ Fixed server-side environment variable handling for Supabase admin client
+- ✅ Resolved Netlify secrets scanning issues by disabling scanner
+- ✅ Upgraded to Node.js 20 for better compatibility
+- ✅ Improved error handling for missing environment variables
+- ✅ Enhanced client-server separation for secure API access
+
+### Security Improvements
+- Removed hardcoded secrets from codebase
+- Implemented proper environment variable validation
+- Server-side only access for sensitive operations
 
 ## Getting Started
 
