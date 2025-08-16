@@ -6,12 +6,21 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
-// Initialize Stripe for server-side operations
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-07-30.basil',
-});
+// Lazy-initialize Stripe for server-side operations
+let _stripe: Stripe | null = null;
 
-export { stripe, stripePromise };
+const getStripe = (): Stripe => {
+  if (!_stripe) {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2025-07-30.basil',
+    });
+  }
+  return _stripe;
+};
+
+// Export the lazy-loaded stripe instance
+export const stripe = getStripe();
+export { stripePromise };
 
 // Stripe configuration constants
 export const STRIPE_CONFIG = {
