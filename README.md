@@ -52,6 +52,12 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 
 ## Recent Updates
 
+### v1.8.0 - UI Simplification & Billing Toggle Removal
+- ✅ **Simplified Pricing**: Removed monthly/annual billing toggle from upgrade and pricing pages
+- ✅ **Streamlined UX**: Simplified pricing interface by removing billing period selection
+- ✅ **Cleaner Design**: Reduced visual complexity on pricing and upgrade pages
+- ✅ **Consistent Experience**: Unified pricing display across all pricing components
+
 ### v1.7.0 - Session Persistence & Upgrade Flow Fixes
 - ✅ **Session Persistence**: Fixed critical session loss issue after Stripe payment redirects
 - ✅ **Supabase Configuration**: Enhanced auth client with `autoRefreshToken`, `persistSession`, and `detectSessionInUrl` settings

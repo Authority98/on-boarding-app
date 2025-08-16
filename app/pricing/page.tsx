@@ -60,7 +60,7 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <section className="py-12 px-4">
         <div className="container mx-auto max-w-6xl">
-          <PricingPlans />
+          <PricingPlans showBillingToggle={false} />
           
           <div className="text-center mt-8">
             <p className="text-gray-600 mb-2">Need help choosing a plan?</p>
