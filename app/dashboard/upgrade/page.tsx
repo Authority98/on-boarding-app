@@ -12,7 +12,7 @@ export default function UpgradePage() {
         </p>
       </div>
       
-      <PricingPlans showHeader={false} showBillingToggle={true} className="" />
+      <PricingPlans showHeader={false} showBillingToggle={false} className="" />
     </div>
   )
 }
