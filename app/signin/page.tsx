@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -16,8 +16,17 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [upgradeMessage, setUpgradeMessage] = useState("")
   const { signIn } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const upgradeSuccess = searchParams.get('upgrade_success')
+    if (upgradeSuccess === 'true') {
+      setUpgradeMessage('Please sign in to complete your plan upgrade and access your dashboard.')
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,7 +38,12 @@ export default function SignInPage() {
     if (error) {
       setError(error.message)
     } else {
-      router.push("/dashboard")
+      const returnUrl = searchParams.get('returnUrl')
+      if (returnUrl) {
+        router.push(decodeURIComponent(returnUrl))
+      } else {
+        router.push("/dashboard")
+      }
     }
     
     setLoading(false)
@@ -53,7 +67,9 @@ export default function SignInPage() {
         </div>
 
         <h2 className="text-center text-3xl font-bold text-foreground mb-2">Sign in to PlankPort</h2>
-        <p className="text-center text-muted-foreground mb-8">Access your client onboarding dashboard</p>
+        <p className="text-center text-muted-foreground mb-8">
+          {upgradeMessage || 'Access your client onboarding dashboard'}
+        </p>
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md">

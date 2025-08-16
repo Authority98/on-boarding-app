@@ -52,6 +52,14 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 
 ## Recent Updates
 
+### v1.6.0 - Netlify Deployment & Authentication Fixes
+- ✅ **Netlify Redirect Fix**: Resolved post-payment redirect issue where users were sent to signin instead of dashboard
+- ✅ **Authentication Handling**: Improved auth context initialization with proper retry logic for Netlify deployments
+- ✅ **Return URL Support**: Added returnUrl parameter handling in signin page for seamless user experience
+- ✅ **Upgrade Success Flow**: Enhanced upgrade success page to handle authentication delays and redirect appropriately
+- ✅ **Error Handling**: Better error handling for authentication failures during payment completion
+- ✅ **User Experience**: Added upgrade success messaging in signin page for clarity
+
 ### Environment & Deployment Fixes
 - ✅ Fixed server-side environment variable handling for Supabase admin client
 - ✅ Resolved Netlify secrets scanning issues by disabling scanner

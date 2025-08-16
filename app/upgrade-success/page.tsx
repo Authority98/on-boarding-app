@@ -22,13 +22,23 @@ function UpgradeSuccessContent() {
     }
     
     try {
-      // Wait a moment for auth context to initialize if needed
-      if (!user) {
-        // Give auth context time to load the user session
-        await new Promise(resolve => setTimeout(resolve, 2000))
+      // Wait for auth context to initialize if needed
+      let attempts = 0
+      const maxAttempts = 10 // 5 seconds total
+      
+      while (!user && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 500))
+        attempts++
       }
       
-      // Force refresh subscription data regardless of user state
+      // If still no user after waiting, redirect to signin with return URL
+      if (!user) {
+        const returnUrl = encodeURIComponent(`/dashboard?show_upgrade_success=true&plan=${encodeURIComponent(plan)}`)
+        router.push(`/signin?returnUrl=${returnUrl}&upgrade_success=true`)
+        return
+      }
+      
+      // Force refresh subscription data
       await refreshSubscription()
       
       // Store the plan name and redirect to dashboard with popup flag
@@ -38,9 +48,13 @@ function UpgradeSuccessContent() {
       router.push('/dashboard?show_upgrade_success=true&plan=' + encodeURIComponent(plan))
       
     } catch (error) {
-      // Handle error silently
-      // Still redirect to dashboard
-      router.push('/dashboard?show_upgrade_success=true&plan=' + encodeURIComponent(plan || 'Unknown'))
+      // Handle error - redirect to signin if user is not authenticated
+      if (!user) {
+        const returnUrl = encodeURIComponent(`/dashboard?show_upgrade_success=true&plan=${encodeURIComponent(plan || 'Unknown')}`)
+        router.push(`/signin?returnUrl=${returnUrl}&upgrade_success=true`)
+      } else {
+        router.push('/dashboard?show_upgrade_success=true&plan=' + encodeURIComponent(plan || 'Unknown'))
+      }
     } finally {
       setIsLoading(false)
     }
