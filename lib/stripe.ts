@@ -9,7 +9,7 @@ const stripePromise = loadStripe(
 // Lazy-initialize Stripe for server-side operations
 let _stripe: Stripe | null = null;
 
-const getStripe = (): Stripe => {
+export const getStripe = (): Stripe => {
   if (!_stripe) {
     _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
       apiVersion: '2025-07-30.basil',
@@ -18,8 +18,7 @@ const getStripe = (): Stripe => {
   return _stripe;
 };
 
-// Export the lazy-loaded stripe instance
-export const stripe = getStripe();
+// Note: Use getStripe() function instead of direct stripe export to avoid build-time initialization
 export { stripePromise };
 
 // Stripe configuration constants
