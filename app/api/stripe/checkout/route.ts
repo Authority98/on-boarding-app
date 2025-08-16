@@ -4,6 +4,20 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate environment variables
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      console.error('Missing NEXT_PUBLIC_SUPABASE_URL');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('Missing STRIPE_SECRET_KEY');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+
     const stripe = getStripe();
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,9 +63,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error) {
-    // Handle error silently
+    console.error('Stripe checkout error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
