@@ -7,7 +7,8 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 ### 🔐 Authentication & User Management
 - Secure sign-in/sign-up with Supabase authentication
 - Protected routes and role-based access
-- User profile management
+- User profile management with email change functionality
+- Real-time auto-fill for agency URL during signup
 
 ### 💰 Pricing & Subscriptions
 - Flexible pricing plans (Free, Startup, Agency)
@@ -51,6 +52,14 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 - **Runtime**: Node.js 20
 
 ## Recent Updates
+
+### v1.9.0 - User Settings & Email Management
+- ✅ **Email Change Functionality**: Users can now update their email address directly from dashboard settings
+- ✅ **Real-time Validation**: Implemented comprehensive email validation with user feedback
+- ✅ **Auto-fill Agency URL**: Agency URL is automatically generated from agency name during signup
+- ✅ **Enhanced UX**: Added success/error states with clear messaging for email updates
+- ✅ **Secure Implementation**: Email changes require confirmation via Supabase Auth
+- ✅ **Interactive UI**: Smooth toggle between view and edit modes for email field
 
 ### v1.8.0 - UI Simplification & Billing Toggle Removal
 - ✅ **Simplified Pricing**: Removed monthly/annual billing toggle from upgrade and pricing pages

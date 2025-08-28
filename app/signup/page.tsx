@@ -36,8 +36,26 @@ export default function SignUpPage() {
     postalCode: ""
   })
 
+  // Function to convert agency name to URL-friendly format
+  const slugify = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with hyphens
+      .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+      .replace(/-+/g, '-') // Replace multiple consecutive hyphens with single hyphen
+  }
+
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData(prev => {
+      const updatedData = { ...prev, [field]: value }
+      
+      // Auto-fill agency URL when agency name changes
+      if (field === 'agencyName') {
+        updatedData.agencyUrl = slugify(value)
+      }
+      
+      return updatedData
+    })
   }
 
   const handleStep1Submit = (e: React.FormEvent) => {
