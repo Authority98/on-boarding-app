@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 import { getUserSubscription, UserSubscription } from './subscription'
@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [subscriptionLoading, setSubscriptionLoading] = useState(false)
 
-  const refreshSubscription = async () => {
+  const refreshSubscription = useCallback(async () => {
     setSubscriptionLoading(true)
     try {
       // Get current session to ensure we have the latest user data
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setSubscriptionLoading(false)
     }
-  }
+  }, []) // Empty dependency array since this function doesn't depend on any values
 
   useEffect(() => {
     let mounted = true

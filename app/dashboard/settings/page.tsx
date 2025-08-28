@@ -1,14 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { User, Building, CreditCard, Bell, Shield, Mail, CheckCircle, AlertCircle } from "lucide-react"
+import { User, Building, CreditCard, Bell, Shield, Mail, CheckCircle, AlertCircle, Plus } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { getPlanDisplayName, getPlanFeatures } from "@/lib/subscription"
+import AddPaymentMethod from "@/components/add-payment-method"
+import SavedPaymentMethods from "@/components/saved-payment-methods"
 
 // Helper function to get user initials
 function getUserInitials(email: string): string {
@@ -38,6 +40,13 @@ export default function SettingsPage() {
   const [emailError, setEmailError] = useState("")
   const [emailSuccess, setEmailSuccess] = useState(false)
   const [showEmailChange, setShowEmailChange] = useState(false)
+  
+  // Payment methods state
+  const [paymentMethods, setPaymentMethods] = useState<any[]>([])
+  const [showAddPayment, setShowAddPayment] = useState(false)
+  const [paymentMethodsLoading, setPaymentMethodsLoading] = useState(false)
+  const [paymentError, setPaymentError] = useState("")
+  const [paymentSuccess, setPaymentSuccess] = useState(false)
   
   // Extract user information
   const userEmail = user?.email || ""
@@ -83,6 +92,70 @@ export default function SettingsPage() {
     setEmailError("")
     setEmailSuccess(false)
   }
+
+  // Fetch payment methods
+  const fetchPaymentMethods = async () => {
+    if (!user?.id) return
+    
+    setPaymentMethodsLoading(true)
+    setPaymentError("")
+    
+    try {
+      const response = await fetch(`/api/stripe/payment-methods?userId=${user.id}`)
+      const data = await response.json()
+      
+      if (response.ok) {
+        setPaymentMethods(data.paymentMethods || [])
+      } else {
+        throw new Error(data.error || "Failed to fetch payment methods")
+      }
+    } catch (error) {
+      console.error("Error fetching payment methods:", error)
+      setPaymentError(error instanceof Error ? error.message : "Failed to load payment methods")
+    } finally {
+      setPaymentMethodsLoading(false)
+    }
+  }
+
+  // Handle successful payment method addition
+  const handlePaymentMethodSuccess = () => {
+    setShowAddPayment(false)
+    setPaymentSuccess(true)
+    fetchPaymentMethods()
+    // Clear success message after 3 seconds
+    setTimeout(() => setPaymentSuccess(false), 3000)
+  }
+
+  // Handle payment method deletion
+  const handleDeletePaymentMethod = async (paymentMethodId: string) => {
+    try {
+      const response = await fetch('/api/stripe/payment-methods', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paymentMethodId }),
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        setPaymentMethods(prev => prev.filter(pm => pm.id !== paymentMethodId))
+      } else {
+        throw new Error(data.error || "Failed to delete payment method")
+      }
+    } catch (error) {
+      console.error("Error deleting payment method:", error)
+      setPaymentError(error instanceof Error ? error.message : "Failed to delete payment method")
+    }
+  }
+
+  // Load payment methods when billing tab is active
+  useEffect(() => {
+    if (activeTab === "billing" && user?.id) {
+      fetchPaymentMethods()
+    }
+  }, [activeTab, user?.id])
 
   return (
     <div className="space-y-6">
@@ -352,54 +425,109 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "billing" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Billing & Subscription</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                  {subscriptionLoading ? (
-                    <div className="animate-pulse">
-                      <div className="h-4 bg-primary/20 rounded mb-2 w-24"></div>
-                      <div className="h-3 bg-primary/20 rounded mb-3 w-48"></div>
-                      <div className="space-y-2">
-                        <div className="h-3 bg-primary/20 rounded w-32"></div>
-                        <div className="h-3 bg-primary/20 rounded w-40"></div>
-                        <div className="h-3 bg-primary/20 rounded w-28"></div>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Billing & Subscription</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Success Message */}
+                  {paymentSuccess && (
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <div>
+                        <p className="text-green-800 dark:text-green-200 font-medium">Payment method added successfully!</p>
+                        <p className="text-green-700 dark:text-green-300 text-sm">Your payment method has been saved securely.</p>
                       </div>
                     </div>
-                  ) : (
-                    <>
-                      <h3 className="font-medium text-primary mb-2">{getPlanDisplayName(subscription?.plan_name || null)}</h3>
-                      <p className="text-sm text-primary/80 mb-3">
-                        You're currently on the {getPlanDisplayName(subscription?.plan_name || null)}
-                      </p>
-                      <div className="space-y-1 text-sm text-primary/80">
-                        {getPlanFeatures(subscription?.plan_name || null).map((feature, index) => (
-                          <p key={index}>• {feature}</p>
-                        ))}
-                      </div>
-                      {!subscription && (
-                        <Button className="mt-4" size="sm" asChild>
-                          <a href="/dashboard/upgrade">Upgrade Plan</a>
-                        </Button>
-                      )}
-                    </>
                   )}
-                </div>
 
-                <div>
-                  <h3 className="font-medium mb-4">Payment Method</h3>
-                  <p className="text-sm text-muted-foreground mb-4">No payment method on file</p>
-                  <Button variant="outline">Add Payment Method</Button>
-                </div>
+                  {/* Error Message */}
+                  {paymentError && (
+                    <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      <div>
+                        <p className="text-red-800 dark:text-red-200 font-medium">Error</p>
+                        <p className="text-red-700 dark:text-red-300 text-sm">{paymentError}</p>
+                      </div>
+                    </div>
+                  )}
 
-                <div>
-                  <h3 className="font-medium mb-4">Billing History</h3>
+                  <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                    {subscriptionLoading ? (
+                      <div className="animate-pulse">
+                        <div className="h-4 bg-primary/20 rounded mb-2 w-24"></div>
+                        <div className="h-3 bg-primary/20 rounded mb-3 w-48"></div>
+                        <div className="space-y-2">
+                          <div className="h-3 bg-primary/20 rounded w-32"></div>
+                          <div className="h-3 bg-primary/20 rounded w-40"></div>
+                          <div className="h-3 bg-primary/20 rounded w-28"></div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <h3 className="font-medium text-primary mb-2">{getPlanDisplayName(subscription?.plan_name || null)}</h3>
+                        <p className="text-sm text-primary/80 mb-3">
+                          You're currently on the {getPlanDisplayName(subscription?.plan_name || null)}
+                        </p>
+                        <div className="space-y-1 text-sm text-primary/80">
+                          {getPlanFeatures(subscription?.plan_name || null).map((feature, index) => (
+                            <p key={index}>• {feature}</p>
+                          ))}
+                        </div>
+                        {!subscription && (
+                          <Button className="mt-4" size="sm" asChild>
+                            <a href="/dashboard/upgrade">Upgrade Plan</a>
+                          </Button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Payment Methods</CardTitle>
+                    {!showAddPayment && (
+                      <Button 
+                        onClick={() => setShowAddPayment(true)}
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Payment Method
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {showAddPayment ? (
+                    <AddPaymentMethod
+                      userId={user?.id || ""}
+                      onSuccess={handlePaymentMethodSuccess}
+                      onCancel={() => setShowAddPayment(false)}
+                    />
+                  ) : (
+                    <SavedPaymentMethods
+                      paymentMethods={paymentMethods}
+                      onDelete={handleDeletePaymentMethod}
+                      isLoading={paymentMethodsLoading}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Billing History</CardTitle>
+                </CardHeader>
+                <CardContent>
                   <p className="text-sm text-muted-foreground">No billing history available</p>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
       </div>

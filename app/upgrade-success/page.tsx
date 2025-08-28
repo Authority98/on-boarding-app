@@ -35,6 +35,41 @@ function UpgradeSuccessContent() {
       return
     }
     
+    // Handle saved card upgrades (no real Stripe session)
+    if (sessionId === 'saved_card_upgrade') {
+      console.log(`${debugPrefix} Processing saved card upgrade success`)
+      
+      // For saved card upgrades, we already have the user session
+      if (user) {
+        console.log(`${debugPrefix} User authenticated, proceeding to dashboard`)
+        
+        // Force refresh subscription data
+        await refreshSubscription()
+        
+        // Store the plan name and redirect to dashboard with popup flag
+        localStorage.setItem('recent_upgrade_plan', plan)
+        
+        router.push('/dashboard?show_upgrade_success=true&plan=' + encodeURIComponent(plan))
+        return
+      } else {
+        console.log(`${debugPrefix} No user for saved card upgrade, waiting for auth...`)
+        // Wait a bit for auth context to initialize
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        if (user) {
+          await refreshSubscription()
+          localStorage.setItem('recent_upgrade_plan', plan)
+          router.push('/dashboard?show_upgrade_success=true&plan=' + encodeURIComponent(plan))
+          return
+        } else {
+          // Fallback to signin if no user
+          const returnUrl = encodeURIComponent(`/dashboard?show_upgrade_success=true&plan=${encodeURIComponent(plan)}`)
+          router.push(`/signin?returnUrl=${returnUrl}&upgrade_success=true`)
+          return
+        }
+      }
+    }
+    
     try {
       // Enhanced session restoration for Netlify compatibility
       console.log(`${debugPrefix} Attempting enhanced session restoration...`)

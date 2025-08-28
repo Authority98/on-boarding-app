@@ -14,6 +14,10 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 - Flexible pricing plans (Free, Startup, Agency)
 - Monthly/Annual billing options with 20% annual discount
 - Stripe integration for payment processing
+- **Saved Payment Methods**: Secure card storage for one-click upgrades
+- **Intelligent Upgrade Flow**: Detects saved cards and provides seamless upgrade experience
+- **Subscription Management**: Real-time subscription status tracking and updates
+- **Webhook Integration**: Automatic subscription synchronization with Stripe events
 - Reusable pricing components
 
 ### 📊 Dashboard
@@ -26,8 +30,9 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 - Task tracking
 - Message center
 - Template management
-- Settings configuration with real user data
-- Upgrade plan functionality
+- **Enhanced Settings**: Email change, billing management, and saved payment methods
+- **Smart Upgrade Flow**: Context-aware upgrade functionality with saved card detection
+- **Real-time Status Updates**: Live subscription status reflection across all components
 - Personalized notifications and user avatars
 
 ### 🎨 UI/UX
@@ -52,6 +57,21 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 - **Runtime**: Node.js 20
 
 ## Recent Updates
+
+### v2.0.0 - Advanced Payment Management & Subscription Fixes
+- ✅ **Saved Payment Methods**: Complete implementation of secure card storage using Stripe Setup Intents
+- ✅ **One-Click Upgrades**: Intelligent upgrade flow that detects saved cards and enables instant upgrades
+- ✅ **Enhanced Settings**: Comprehensive billing management with saved card display and deletion
+- ✅ **Subscription Synchronization**: Fixed critical webhook issues causing subscription status mismatches
+- ✅ **Manual Sync Tools**: Created utility scripts to recover missing subscription data
+- ✅ **Session Preservation**: Resolved session logout issues during upgrade flows
+- ✅ **Infinite Loop Fixes**: Fixed React useEffect dependency issues causing endless subscription refreshes
+- ✅ **Real-time Updates**: Cross-component communication system for instant subscription status updates
+- ✅ **Debug Enhancement**: Comprehensive logging system for troubleshooting subscription issues
+- ✅ **Payment Method Management**: Full CRUD operations for saved payment methods
+- ✅ **Fallback Handling**: Smart fallback to regular Stripe Checkout when no saved cards available
+- ✅ **Webhook Recovery**: Automatic detection and fixing of missed webhook events
+- ✅ **Development Tools**: Enhanced Stripe CLI integration and webhook forwarding setup
 
 ### v1.9.0 - User Settings & Email Management
 - ✅ **Email Change Functionality**: Users can now update their email address directly from dashboard settings
@@ -133,17 +153,20 @@ STRIPE_SECRET_KEY=your_stripe_secret_key
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 ```
 
-4. Set up Stripe CLI for webhook testing (development only):
+4. **Set up Stripe CLI for webhook testing (REQUIRED for subscription functionality):**
 ```bash
 # Install Stripe CLI
 brew install stripe/stripe-cli/stripe
 
-# Forward webhooks to your local server
+# Forward webhooks to your local server (CRITICAL for payment processing)
 export STRIPE_API_KEY=$(grep STRIPE_SECRET_KEY .env.local | cut -d '=' -f2)
-stripe listen --forward-to localhost:3000/api/stripe/webhook
+stripe listen --forward-to localhost:3001/api/stripe/webhook
 
 # Copy the webhook signing secret from the CLI output and add it to .env.local
+# Without this, subscription updates will not work properly!
 ```
+
+**Important**: The Stripe CLI must be running during development for subscription updates to work. If you complete a payment but don't see your plan updated, check that the Stripe CLI is forwarding webhooks.
 
 5. Run the development server:
 ```bash
@@ -152,7 +175,38 @@ npm run dev
 pnpm dev
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+6. Open [http://localhost:3001](http://localhost:3001) in your browser.
+
+## Troubleshooting
+
+### Subscription Status Issues
+
+If you complete a payment but your plan doesn't update:
+
+1. **Check Stripe CLI**: Ensure Stripe CLI is running and forwarding webhooks:
+   ```bash
+   stripe listen --forward-to localhost:3001/api/stripe/webhook
+   ```
+
+2. **Manual Sync**: Run the manual subscription sync script:
+   ```bash
+   node scripts/sync-missing-subscription.js
+   ```
+
+3. **Verify Webhook Secret**: Ensure `STRIPE_WEBHOOK_SECRET` in `.env.local` matches the CLI output
+
+4. **Check Console Logs**: Look for debug logs like:
+   ```
+   🔍 Plan Detection Debug: {...}
+   🔍 Subscription details: {...}
+   ```
+
+### Development Setup
+
+- **Port**: Development server automatically uses port 3001 if 3000 is busy
+- **Environment**: All environment variables must be properly configured
+- **Database**: Ensure Supabase migrations are applied
+- **Payments**: Test payments require Stripe CLI for webhook handling
 
 ## Project Structure
 
@@ -172,19 +226,28 @@ app/
 └── signup/
 
 components/
-├── ui/                        # Reusable UI components
-├── add-client-dialog.tsx      # Add new client dialog
-├── edit-client-dialog.tsx     # Edit client information dialog
+├── ui/                           # Reusable UI components
+├── add-client-dialog.tsx         # Add new client dialog
+├── add-payment-method.tsx        # Add payment method component
+├── edit-client-dialog.tsx        # Edit client information dialog
 ├── feature-in-progress-dialog.tsx # Feature progress notification
-├── pricing-plans.tsx          # Pricing plans component
-├── stripe-popup.tsx           # Stripe payment popup
-├── theme-toggle.tsx           # Dark/light theme toggle
-└── protected-route.tsx        # Route protection
+├── pricing-plans.tsx             # Pricing plans component
+├── saved-payment-methods.tsx     # Saved payment methods display
+├── stripe-popup.tsx              # Enhanced Stripe payment popup
+├── theme-toggle.tsx              # Dark/light theme toggle
+├── upgrade-success-popup.tsx     # Upgrade success celebration
+└── protected-route.tsx           # Route protection
 
 lib/
-├── auth-context.tsx    # Authentication context
-├── supabase.ts         # Supabase client
-└── utils.ts            # Utility functions
+├── auth-context.tsx       # Enhanced authentication context
+├── supabase.ts           # Supabase client
+├── stripe.ts             # Stripe integration utilities
+├── subscription.ts       # Subscription management utilities
+└── utils.ts              # Utility functions
+
+scripts/
+├── setup-stripe-products.js      # Stripe product setup
+└── sync-missing-subscription.js  # Manual subscription sync utility
 ```
 
 ## Recent Updates

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,7 +24,42 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
     priceId: string;
     price: string;
   } | null>(null)
-  const { user, subscription, subscriptionLoading } = useAuth()
+  const { user, subscription, subscriptionLoading, refreshSubscription } = useAuth()
+
+  // Effect to refresh subscription data when component mounts or user changes
+  useEffect(() => {
+    if (user && !subscriptionLoading && !subscription) {
+      console.log('🔄 PricingPlans: Refreshing subscription data on mount/user change')
+      refreshSubscription()
+    }
+  }, [user, subscriptionLoading, subscription, refreshSubscription])
+
+  // Effect to listen for storage events (when upgrade success sets recent_upgrade_plan)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'recent_upgrade_plan' && e.newValue) {
+        console.log('🔄 PricingPlans: Detected recent upgrade, refreshing subscription data')
+        refreshSubscription()
+        // Clear the storage flag
+        localStorage.removeItem('recent_upgrade_plan')
+      }
+    }
+
+    // Listen for storage events
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Also check for existing flag on mount
+    const recentUpgrade = localStorage.getItem('recent_upgrade_plan')
+    if (recentUpgrade) {
+      console.log('🔄 PricingPlans: Found recent upgrade flag on mount, refreshing subscription')
+      refreshSubscription()
+      localStorage.removeItem('recent_upgrade_plan')
+    }
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [refreshSubscription])
 
   const getPrice = (monthlyPrice: number) => {
     return billingPeriod === 'annual' ? Math.round(monthlyPrice * 0.8) : monthlyPrice
@@ -32,21 +67,55 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
 
   // Helper function to check if user is on a specific plan and billing period
   const isCurrentPlan = (planType: 'free' | 'startup' | 'agency') => {
+    // Debug logging to understand subscription state
+    console.log('🔍 Plan Detection Debug:', {
+      planType,
+      subscription: subscription ? {
+        id: subscription.id,
+        plan_name: subscription.plan_name,
+        billing_period: subscription.billing_period,
+        status: subscription.status,
+        stripe_subscription_id: subscription.stripe_subscription_id
+      } : null,
+      subscriptionLoading,
+      currentBillingPeriod: billingPeriod,
+      timestamp: new Date().toISOString()
+    })
+    
+    if (subscriptionLoading) {
+      return false // Don't show any plan as current while loading
+    }
+    
     if (!subscription) {
+      console.log('🔍 No subscription found, defaulting to free plan')
       return planType === 'free'
     }
     
     const currentPlan = subscription.plan_name?.toLowerCase() || ''
     const currentBillingPeriod = subscription.billing_period || 'monthly'
     
+    console.log('🔍 Subscription details:', {
+      currentPlan,
+      currentBillingPeriod,
+      subscriptionId: subscription.id,
+      subscriptionStatus: subscription.status,
+      stripeSubscriptionId: subscription.stripe_subscription_id
+    })
+    
     switch (planType) {
       case 'free':
         // User is on free plan if plan_name is 'free' or if it's the fallback free-plan object
-        return currentPlan === 'free' || subscription.id === 'free-plan'
+        const isFree = currentPlan === 'free' || subscription.id === 'free-plan'
+        console.log(`🔍 Free plan check: ${isFree} (plan: '${currentPlan}', id: '${subscription.id}')`)
+        return isFree
       case 'startup':
-        return currentPlan.includes('startup') && currentBillingPeriod === billingPeriod
+        const isStartup = currentPlan.includes('startup') && currentBillingPeriod === billingPeriod
+        console.log(`🔍 Startup plan check: ${isStartup} (plan includes startup: ${currentPlan.includes('startup')}, billing matches: ${currentBillingPeriod === billingPeriod})`)
+        return isStartup
       case 'agency':
-        return currentPlan.includes('agency') && currentBillingPeriod === billingPeriod
+        const isAgency = currentPlan.includes('agency') && currentBillingPeriod === billingPeriod
+        console.log(`🔍 Agency plan check: ${isAgency} (plan includes agency: ${currentPlan.includes('agency')}, billing matches: ${currentBillingPeriod === billingPeriod})`)
+        return isAgency
       default:
         return false
     }
@@ -164,7 +233,7 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
               <Button 
                 variant="outline" 
                 className="w-full mt-6 bg-transparent cursor-pointer" 
-                disabled={isCurrentPlan('free')}
+                disabled={isCurrentPlan('free') || subscriptionLoading}
                 onClick={() => {
                   if (!isCurrentPlan('free')) {
                     if (confirm('Are you sure you want to downgrade to the Free plan? This will cancel your current subscription at the end of the billing period.')) {
@@ -173,7 +242,7 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
                   }
                 }}
               >
-                {isCurrentPlan('free') ? 'Current Plan' : 'Downgrade to Free'}
+                {subscriptionLoading ? 'Loading...' : (isCurrentPlan('free') ? 'Current Plan' : 'Downgrade to Free')}
               </Button>
             ) : (
               <Button asChild variant="outline" className="w-full mt-6 cursor-pointer">
@@ -261,10 +330,10 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
                 })
                 setShowStripePopup(true)
               }}
-              disabled={isCurrentPlan('startup')}
+              disabled={isCurrentPlan('startup') || subscriptionLoading}
             >
               <ArrowUpRight className="w-4 h-4 mr-2" />
-              {isCurrentPlan('startup') ? 'Current Plan' : (user ? (isCurrentPlan('agency') ? 'Downgrade' : 'Upgrade Now') : "Get Started")}
+              {subscriptionLoading ? 'Loading...' : (isCurrentPlan('startup') ? 'Current Plan' : (user ? (isCurrentPlan('agency') ? 'Downgrade' : 'Upgrade Now') : "Get Started"))}
             </Button>
           </CardContent>
         </Card>
@@ -338,10 +407,10 @@ export function PricingPlans({ showHeader = true, showBillingToggle = true, clas
                 })
                 setShowStripePopup(true)
               }}
-              disabled={isCurrentPlan('agency') && !canUpgradeBillingPeriod('agency')}
+              disabled={(isCurrentPlan('agency') && !canUpgradeBillingPeriod('agency')) || subscriptionLoading}
             >
               <ArrowUpRight className="w-4 h-4 mr-2" />
-              {isCurrentPlan('agency') ? 'Current Plan' : (user ? "Upgrade Now" : "Get Started")}
+              {subscriptionLoading ? 'Loading...' : (isCurrentPlan('agency') ? 'Current Plan' : (user ? "Upgrade Now" : "Get Started"))}
             </Button>
           </CardContent>
         </Card>
