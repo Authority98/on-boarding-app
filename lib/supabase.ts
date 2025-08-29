@@ -53,6 +53,8 @@ export interface Client {
   email: string
   phone?: string
   status: 'active' | 'inactive' | 'pending' | 'completed'
+  view_mode: 'dashboard' | 'task' | 'hybrid'
+  dashboard_slug: string
   user_id?: string
   created_at?: string
   updated_at?: string
@@ -83,18 +85,51 @@ export const clientOperations = {
     return data as Client
   },
 
-  // Create new client
-  async create(client: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'user_id'>) {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('User not authenticated')
+  // Get client by dashboard slug (for public dashboard access)
+  async getBySlug(slug: string) {
+    console.log('Fetching client by slug:', slug)
     
     const { data, error } = await supabase
       .from('clients')
-      .insert([{ ...client, user_id: user.id }])
+      .select('*')
+      .eq('dashboard_slug', slug)
+      .single()
+    
+    if (error) {
+      console.error('Error fetching client by slug:', error)
+      throw error
+    }
+    
+    console.log('Found client:', data)
+    return data as Client
+  },
+
+  // Create new client
+  async create(client: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'user_id' | 'dashboard_slug'>) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+    
+    // Ensure view_mode is set, default to 'dashboard' if not provided
+    const clientData = {
+      ...client,
+      view_mode: client.view_mode || 'dashboard',
+      user_id: user.id
+    }
+    
+    console.log('Creating client with data:', clientData)
+    
+    const { data, error } = await supabase
+      .from('clients')
+      .insert([clientData])
       .select()
       .single()
     
-    if (error) throw error
+    if (error) {
+      console.error('Supabase client creation error:', error)
+      throw error
+    }
+    
+    console.log('Client created successfully:', data)
     return data as Client
   },
 

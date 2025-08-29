@@ -37,6 +37,7 @@ export function AddClientDialog({ onClientAdded }: AddClientDialogProps) {
     email: "",
     phone: "",
     status: "active" as const,
+    view_mode: "dashboard" as const,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,6 +56,7 @@ export function AddClientDialog({ onClientAdded }: AddClientDialogProps) {
         email: formData.email,
         phone: formData.phone || undefined,
         status: formData.status,
+        view_mode: formData.view_mode,
       })
 
       toast.success("Client added successfully")
@@ -66,10 +68,24 @@ export function AddClientDialog({ onClientAdded }: AddClientDialogProps) {
         email: "",
         phone: "",
         status: "active",
+        view_mode: "dashboard",
       })
     } catch (error) {
-      // Handle error silently
-      toast.error("Failed to add client. Please try again.")
+      console.error('Error adding client:', error)
+      
+      // Provide more specific error messages
+      if (error && typeof error === 'object' && 'message' in error) {
+        const errorMessage = error.message as string
+        if (errorMessage.includes('unique') || errorMessage.includes('already exists')) {
+          toast.error("A client with this email already exists")
+        } else if (errorMessage.includes('dashboard_slug')) {
+          toast.error("Failed to generate unique dashboard URL. Please try again.")
+        } else {
+          toast.error(`Failed to add client: ${errorMessage}`)
+        }
+      } else {
+        toast.error("Failed to add client. Please try again.")
+      }
     } finally {
       setLoading(false)
     }
@@ -163,6 +179,24 @@ export function AddClientDialog({ onClientAdded }: AddClientDialogProps) {
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="view_mode" className="text-right">
+                Dashboard
+              </Label>
+              <Select
+                value={formData.view_mode}
+                onValueChange={(value) => handleInputChange("view_mode", value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dashboard">Dashboard Mode</SelectItem>
+                  <SelectItem value="task">Task Mode</SelectItem>
+                  <SelectItem value="hybrid">Hybrid Mode</SelectItem>
                 </SelectContent>
               </Select>
             </div>

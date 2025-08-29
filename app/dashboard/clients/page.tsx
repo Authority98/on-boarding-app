@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, MoreHorizontal, Building, Mail, Phone, Filter } from "lucide-react"
 import { AddClientDialog } from "@/components/add-client-dialog"
 import { EditClientDialog } from "@/components/edit-client-dialog"
-import { FeatureInProgressDialog } from "@/components/feature-in-progress-dialog"
+import { DashboardEditor } from "@/components/dashboard-editor"
 import { clientOperations, type Client } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Loading } from "@/components/ui/loading"
@@ -252,11 +252,7 @@ export default function ClientsPage() {
                   <span className="text-sm">{client.created_at ? formatDate(client.created_at) : 'N/A'}</span>
                 </div>
 
-                <FeatureInProgressDialog featureName="Dashboard Editor">
-                  <Button variant="outline" className="w-full bg-transparent">
-                    Dashboard Editor
-                  </Button>
-                </FeatureInProgressDialog>
+                <DashboardEditor client={client} onClientUpdated={handleClientUpdated} />
               </CardContent>
             </Card>
           ))}
