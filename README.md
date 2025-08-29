@@ -66,6 +66,14 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 
 ## Recent Updates
 
+### v3.1.0 - Inline Dashboard Editor & UX Improvements
+- ✅ **Inline Dashboard Editor**: Converted popup-based dashboard editor to seamless inline interface
+- ✅ **Enhanced Navigation**: Added back navigation and improved client selection flow
+- ✅ **Two-Column Layout**: Optimized space utilization with better visual hierarchy
+- ✅ **State Management**: Implemented proper client selection state for smooth transitions
+- ✅ **Mobile Responsive**: Enhanced mobile experience for dashboard editor interface
+- ✅ **User Experience**: Eliminated popup interruptions for more natural editing workflow
+
 ### v3.0.0 - Client Dashboard Editor System
 - ✅ **Multi-Mode Dashboard System**: Complete implementation of three distinct dashboard experiences
 - ✅ **Dashboard Editor Interface**: Intuitive editor for agencies to configure client dashboard modes
@@ -79,7 +87,8 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 - ✅ **Security Enhancements**: Proper RLS policies ensuring user data isolation while enabling public access
 - ✅ **Real-time Data Integration**: Mock data with realistic interactions demonstrating full functionality
 - ✅ **Next.js 15 Compatibility**: Updated dynamic routes to use proper async params handling
-- ✅ **Enhanced UX**: Improved dialog sizing, error handling, and debug logging
+- ✅ **Security Fixes**: Resolved cross-user data leakage issues with enhanced RLS policies
+- ✅ **Database Migrations**: Multiple migrations for schema updates, constraint fixes, and security patches
 
 ### v2.0.0 - Advanced Payment Management & Subscription Fixes
 - ✅ **Saved Payment Methods**: Complete implementation of secure card storage using Stripe Setup Intents
@@ -205,15 +214,20 @@ pnpm dev
 After setting up the application, you can use the new Client Dashboard Editor:
 
 1. **Create Clients**: Go to `/dashboard/clients` and add new clients
-2. **Configure Dashboards**: Click "Dashboard Editor" on any client to:
+2. **Configure Dashboards**: Click "Dashboard Editor" on any client to access the inline editor interface:
    - Select dashboard mode (Dashboard/Task/Hybrid)
    - Copy the unique client dashboard URL
    - Preview the client experience
+   - Navigate back to client list seamlessly
 3. **Share with Clients**: Send the generated URL to clients for their personalized dashboard access
 4. **Dashboard Modes**:
    - **Dashboard Mode**: Full analytics with KPIs and charts
    - **Task Mode**: Simple task list for onboarding
    - **Hybrid Mode**: Dashboard with task sidebar
+5. **Database Management**: Apply migrations via Supabase CLI:
+   ```bash
+   supabase db push
+   ```
 
 ## Troubleshooting
 
@@ -270,7 +284,8 @@ components/
 ├── add-client-dialog.tsx         # Add new client dialog
 ├── add-payment-method.tsx        # Add payment method component
 ├── client-dashboard.tsx          # Client dashboard router component
-├── dashboard-editor.tsx          # Dashboard configuration editor
+├── dashboard-editor.tsx          # Dashboard configuration editor (popup version)
+├── dashboard-editor-inline.tsx   # Inline dashboard configuration editor
 ├── dashboard-mode.tsx            # Full analytics dashboard mode
 ├── task-mode.tsx                 # Task-focused dashboard mode
 ├── hybrid-mode.tsx               # Combined dashboard and task mode

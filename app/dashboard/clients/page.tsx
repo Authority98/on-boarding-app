@@ -7,10 +7,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, MoreHorizontal, Building, Mail, Phone, Filter } from "lucide-react"
+import { Search, MoreHorizontal, Building, Mail, Phone, Filter, Settings } from "lucide-react"
 import { AddClientDialog } from "@/components/add-client-dialog"
 import { EditClientDialog } from "@/components/edit-client-dialog"
-import { DashboardEditor } from "@/components/dashboard-editor"
+import { DashboardEditorInline } from "@/components/dashboard-editor-inline"
 import { clientOperations, type Client } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Loading } from "@/components/ui/loading"
@@ -21,6 +21,7 @@ export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
 
   // Load clients on component mount
   useEffect(() => {
@@ -78,6 +79,18 @@ export default function ClientsPage() {
     setClients(prev => prev.map(client => 
       client.id === updatedClient.id ? updatedClient : client
     ))
+    // Update selected client if it's the one being edited
+    if (selectedClient && selectedClient.id === updatedClient.id) {
+      setSelectedClient(updatedClient)
+    }
+  }
+
+  const handleSelectClient = (client: Client) => {
+    setSelectedClient(client)
+  }
+
+  const handleBackToClients = () => {
+    setSelectedClient(null)
   }
 
   const getInitials = (name: string) => {
@@ -157,6 +170,17 @@ export default function ClientsPage() {
     )
   }
   
+  // Show dashboard editor if a client is selected
+  if (selectedClient) {
+    return (
+      <DashboardEditorInline 
+        client={selectedClient}
+        onClientUpdated={handleClientUpdated}
+        onBack={handleBackToClients}
+      />
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -252,7 +276,14 @@ export default function ClientsPage() {
                   <span className="text-sm">{client.created_at ? formatDate(client.created_at) : 'N/A'}</span>
                 </div>
 
-                <DashboardEditor client={client} onClientUpdated={handleClientUpdated} />
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => handleSelectClient(client)}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Dashboard Editor
+                </Button>
               </CardContent>
             </Card>
           ))}
