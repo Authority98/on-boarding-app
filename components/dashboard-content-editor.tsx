@@ -33,6 +33,7 @@ interface DashboardContentEditorProps {
 export function DashboardContentEditor({ client, onClientUpdated, onBack }: DashboardContentEditorProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'layout' | 'content' | 'branding' | 'advanced' | 'preview'>('layout')
+  const [currentClient, setCurrentClient] = useState<Client>(client)
   const [dashboardConfig, setDashboardConfig] = useState<DashboardConfig>(
     client.dashboard_config || {
       theme: {
@@ -64,13 +65,13 @@ export function DashboardContentEditor({ client, onClientUpdated, onBack }: Dash
 
   useEffect(() => {
     loadDashboardContent()
-  }, [client.id])
+  }, [currentClient.id])
 
   const loadDashboardContent = async () => {
-    if (!client.id) return
+    if (!currentClient.id) return
     
     try {
-      const content = await dashboardContentOperations.getByClientId(client.id)
+      const content = await dashboardContentOperations.getByClientId(currentClient.id)
       setDashboardContent(content)
     } catch (error) {
       console.error('Error loading dashboard content:', error)
@@ -78,7 +79,7 @@ export function DashboardContentEditor({ client, onClientUpdated, onBack }: Dash
   }
 
   const getDashboardUrl = () => {
-    return `${window.location.origin}/client-dashboard/${client.dashboard_slug}`
+    return `${window.location.origin}/client-dashboard/${currentClient.dashboard_slug}`
   }
 
   const handleCopyUrl = async () => {
@@ -95,11 +96,17 @@ export function DashboardContentEditor({ client, onClientUpdated, onBack }: Dash
   }
 
   const handleSaveChanges = async () => {
-    if (!client.id) return
+    if (!currentClient.id) return
     
     setIsLoading(true)
     try {
-      const updatedClient = await clientOperations.updateDashboardConfig(client.id, dashboardConfig)
+      // Update both dashboard config and view mode
+      const updatedClient = await clientOperations.update(currentClient.id, {
+        dashboard_config: dashboardConfig,
+        view_mode: currentClient.view_mode
+      })
+      
+      setCurrentClient(updatedClient)
       onClientUpdated(updatedClient)
       toast.success("Dashboard configuration saved successfully!")
     } catch (error) {
@@ -233,9 +240,9 @@ export function DashboardContentEditor({ client, onClientUpdated, onBack }: Dash
         </CardHeader>
         <CardContent>
           <Select 
-            value={client.view_mode} 
+            value={currentClient.view_mode} 
             onValueChange={(value: 'dashboard' | 'task' | 'hybrid') => {
-              onClientUpdated({ ...client, view_mode: value })
+              setCurrentClient(prev => ({ ...prev, view_mode: value }))
             }}
           >
             <SelectTrigger>
@@ -494,7 +501,7 @@ export function DashboardContentEditor({ client, onClientUpdated, onBack }: Dash
                 )}
                 <div>
                   <h1 className="text-2xl font-bold">
-                    Welcome{dashboardConfig.branding?.showCompanyName && client.company ? `, ${client.company}` : ''}!
+                    Welcome{dashboardConfig.branding?.showCompanyName && currentClient.company ? `, ${currentClient.company}` : ''}!
                   </h1>
                   {dashboardConfig.branding?.customWelcomeMessage && (
                     <p className="text-gray-600 mt-1">{dashboardConfig.branding.customWelcomeMessage}</p>
@@ -572,7 +579,7 @@ export function DashboardContentEditor({ client, onClientUpdated, onBack }: Dash
             Back to Clients
           </Button>
           <div>
-            <h2 className="text-2xl font-bold">Dashboard Content Editor - {client.name}</h2>
+            <h2 className="text-2xl font-bold">Dashboard Content Editor - {currentClient.name}</h2>
             <p className="text-muted-foreground">
               Customize every aspect of your client's dashboard experience
             </p>
@@ -610,7 +617,7 @@ export function DashboardContentEditor({ client, onClientUpdated, onBack }: Dash
         {activeTab === 'branding' && renderBrandingEditor()}
         {activeTab === 'advanced' && (
           <DashboardAdvancedEditor
-            client={client}
+            client={currentClient}
             dashboardConfig={dashboardConfig}
             onConfigUpdate={setDashboardConfig}
           />
