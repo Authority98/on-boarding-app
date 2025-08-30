@@ -7,13 +7,30 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, MoreHorizontal, Building, Mail, Phone, Filter, Settings } from "lucide-react"
+import { Search, MoreHorizontal, Building, Mail, Phone, Filter, Settings, Trash2, Eye, Calendar, Globe, ExternalLink, Edit } from "lucide-react"
 import { AddClientDialog } from "@/components/add-client-dialog"
 import { EditClientDialog } from "@/components/edit-client-dialog"
-import { DashboardContentEditor } from "@/components/dashboard-content-editor"
+import DashboardContentEditor from "@/components/dashboard-content-editor"
 import { clientOperations, type Client } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Loading } from "@/components/ui/loading"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([])
@@ -22,6 +39,11 @@ export default function ClientsPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null)
+  const [deletingClient, setDeletingClient] = useState(false)
+  const [editDialogKey, setEditDialogKey] = useState(0)
+  const [clientToEdit, setClientToEdit] = useState<Client | null>(null)
 
   // Load clients on component mount
   useEffect(() => {
@@ -91,6 +113,38 @@ export default function ClientsPage() {
 
   const handleBackToClients = () => {
     setSelectedClient(null)
+  }
+
+  const handleDeleteClient = (client: Client) => {
+    setClientToDelete(client)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditClient = (client: Client) => {
+    setClientToEdit(client)
+    setEditDialogKey(prev => prev + 1) // Force re-render to open dialog
+  }
+
+  const confirmDeleteClient = async () => {
+    if (!clientToDelete?.id) return
+    
+    try {
+      setDeletingClient(true)
+      await clientOperations.delete(clientToDelete.id)
+      setClients(prev => prev.filter(client => client.id !== clientToDelete.id))
+      toast.success(`Client "${clientToDelete.name}" has been deleted successfully.`)
+      setDeleteDialogOpen(false)
+      setClientToDelete(null)
+    } catch (error) {
+      console.error('Error deleting client:', error)
+      toast.error("Failed to delete client. Please try again.")
+    } finally {
+      setDeletingClient(false)
+    }
+  }
+
+  const getDashboardUrl = (client: Client) => {
+    return `${window.location.origin}/client-dashboard/${client.dashboard_slug}`
   }
 
   const getInitials = (name: string) => {
@@ -234,61 +288,166 @@ export default function ClientsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredClients.map((client) => (
-            <Card key={client.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Avatar className="w-12 h-12">
-                    <AvatarFallback>{getInitials(client.name)}</AvatarFallback>
-                  </Avatar>
-                  <EditClientDialog client={client} onClientUpdated={handleClientUpdated} />
-                </div>
-
-                <h3 className="font-semibold text-lg mb-1">{client.name}</h3>
-
-                <div className="space-y-2 mb-4">
+            <Card key={client.id} className="hover:shadow-lg transition-all duration-300 border border-gray-200 shadow-sm bg-white overflow-hidden group">
+              <CardContent className="p-0">
+                {/* Simplified Header */}
+                <div className="bg-black p-3 text-white">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-base truncate flex-1">{client.name}</h3>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-white hover:bg-white/20">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-64">
+                        <DropdownMenuItem onClick={() => handleSelectClient(client)} className="group">
+                          <Settings className="w-4 h-4 mr-2 text-gray-600 group-hover:text-black" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">Live Dashboard Editor</span>
+                            <span className="text-xs text-gray-500">Customize dashboard content</span>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => window.open(getDashboardUrl(client), '_blank')}
+                          className="group"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2 text-gray-600 group-hover:text-black" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">View Live Dashboard</span>
+                            <span className="text-xs text-gray-500">Open client dashboard</span>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => handleEditClient(client)}
+                          className="group"
+                        >
+                          <Edit className="w-4 h-4 mr-2 text-gray-600 group-hover:text-black" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">Edit Client Info</span>
+                            <span className="text-xs text-gray-500">Update client details</span>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleDeleteClient(client)}
+                          className="text-red-600 focus:text-red-600 group"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2 group-hover:text-red-700" />
+                          <div className="flex flex-col">
+                            <span className="font-medium">Delete Client</span>
+                            <span className="text-xs text-red-500">Permanently remove</span>
+                          </div>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                   {client.company && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Building className="w-4 h-4" />
-                      {client.company}
+                    <div className="px-3 pb-2 bg-black">
+                      <div className="flex items-center gap-2 text-gray-400">
+                        <Building className="w-3 h-3" />
+                        <p className="text-xs font-medium truncate">{client.company}</p>
+                      </div>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Mail className="w-4 h-4" />
-                    {client.email}
+                </div>
+                
+                {/* Main Content */}
+                <div className="p-4">
+                  {/* Avatar and Status */}
+                  <div className="flex items-center justify-between mb-4">
+                    <Avatar className="w-12 h-12 border-2 border-white shadow-md -mt-8 bg-white">
+                      <AvatarFallback className="bg-gray-900 text-white font-semibold text-sm">
+                        {getInitials(client.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <Badge variant="secondary" className={`${getStatusColor(client.status)} text-xs px-2 py-1`}>
+                      {client.status.charAt(0).toUpperCase() + client.status.slice(1)}
+                    </Badge>
+                  </div>
+
+                {/* Simplified Contact Information */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail className="w-3 h-3 text-gray-500" />
+                    <span className="text-gray-900 truncate text-xs">{client.email}</span>
                   </div>
                   {client.phone && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Phone className="w-4 h-4" />
-                      {client.phone}
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="w-3 h-3 text-gray-500" />
+                      <span className="text-gray-900 truncate text-xs">{client.phone}</span>
                     </div>
                   )}
+                  <div className="flex items-center gap-2 text-sm">
+                    <Eye className="w-3 h-3 text-gray-500" />
+                    <span className="text-gray-900 capitalize text-xs">{client.view_mode} Mode</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-muted-foreground">Status:</span>
-                  <Badge variant="secondary" className={getStatusColor(client.status)}>
-                    {client.status}
-                  </Badge>
+                {/* Simplified Info Grid */}
+                <div className="flex justify-between items-center text-xs text-gray-500 mb-4">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    <span>{client.created_at ? formatDate(client.created_at) : 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Globe className="w-3 h-3" />
+                    <span className="truncate">/{client.dashboard_slug}</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-muted-foreground">Added:</span>
-                  <span className="text-sm">{client.created_at ? formatDate(client.created_at) : 'N/A'}</span>
-                </div>
-
+                {/* Compact Action Button */}
                 <Button 
-                  variant="outline" 
-                  className="w-full" 
+                  className="w-full h-9 bg-black hover:bg-gray-800 text-white font-medium transition-all duration-200" 
                   onClick={() => handleSelectClient(client)}
                 >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Dashboard Editor
+                  <Settings className="w-3 h-3 mr-2" />
+                  <span className="text-sm">Live Dashboard Editor</span>
                 </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      {/* Edit Client Dialog */}
+      {clientToEdit && (
+        <div key={editDialogKey}>
+          <EditClientDialog 
+            client={clientToEdit} 
+            onClientUpdated={(updatedClient) => {
+              handleClientUpdated(updatedClient)
+              setClientToEdit(null)
+            }}
+          />
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this client?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the client "{clientToDelete?.name}" 
+              and all associated dashboard data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingClient}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteClient}
+              disabled={deletingClient}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {deletingClient ? "Deleting..." : "Delete Client"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
