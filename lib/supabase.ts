@@ -55,7 +55,105 @@ export interface Client {
   status: 'active' | 'inactive' | 'pending' | 'completed'
   view_mode: 'dashboard' | 'task' | 'hybrid'
   dashboard_slug: string
+  dashboard_config?: DashboardConfig
   user_id?: string
+  created_at?: string
+  updated_at?: string
+}
+
+// Dashboard configuration types
+export interface DashboardConfig {
+  theme?: {
+    primaryColor?: string
+    secondaryColor?: string
+    backgroundColor?: string
+    textColor?: string
+  }
+  branding?: {
+    showLogo?: boolean
+    logoUrl?: string
+    showCompanyName?: boolean
+    customWelcomeMessage?: string
+    companyDescription?: string
+  }
+  layout?: {
+    enableKPIs?: boolean
+    enableCharts?: boolean
+    enableTasks?: boolean
+    enableActivity?: boolean
+    enableAnnouncements?: boolean
+    sectionOrder?: string[]
+  }
+  kpis?: Array<{
+    id: string
+    title: string
+    value: string
+    type: 'percentage' | 'number' | 'currency' | 'text'
+    icon?: string
+    color?: string
+    description?: string
+  }>
+  tasks?: Array<{
+    id: string
+    title: string
+    description: string
+    status: 'pending' | 'in-progress' | 'completed'
+    priority: 'high' | 'medium' | 'low'
+    dueDate?: string
+    category?: string
+  }>
+  announcements?: Array<{
+    id: string
+    title: string
+    content: string
+    type: 'info' | 'success' | 'warning' | 'error'
+    isActive: boolean
+    createdAt: string
+  }>
+  media?: Array<{
+    id: string
+    type: 'image' | 'video' | 'document'
+    title: string
+    url: string
+    description?: string
+  }>
+}
+
+// Dashboard template type
+export interface DashboardTemplate {
+  id?: string
+  user_id?: string
+  name: string
+  description?: string
+  config: DashboardConfig
+  is_default?: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+// Dashboard content type
+export interface DashboardContent {
+  id?: string
+  client_id: string
+  content_type: 'welcome_message' | 'kpi' | 'task' | 'announcement' | 'media'
+  content_key: string
+  content_data: any
+  display_order?: number
+  is_active?: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+// Dashboard asset type
+export interface DashboardAsset {
+  id?: string
+  client_id: string
+  asset_type: 'image' | 'video' | 'document' | 'logo'
+  file_name: string
+  file_path: string
+  file_size?: number
+  mime_type?: string
+  alt_text?: string
   created_at?: string
   updated_at?: string
 }
@@ -182,6 +280,196 @@ export const clientOperations = {
     
     if (error) throw error
     return data as Client[]
+  },
+
+  // Update dashboard configuration
+  async updateDashboardConfig(id: string, config: DashboardConfig) {
+    const { data, error } = await supabase
+      .from('clients')
+      .update({ dashboard_config: config })
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as Client
+  }
+}
+
+// Dashboard template operations
+export const dashboardTemplateOperations = {
+  // Get all templates for current user
+  async getAll() {
+    const { data, error } = await supabase
+      .from('dashboard_templates')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data as DashboardTemplate[]
+  },
+
+  // Create new template
+  async create(template: Omit<DashboardTemplate, 'id' | 'created_at' | 'updated_at' | 'user_id'>) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+    
+    const { data, error } = await supabase
+      .from('dashboard_templates')
+      .insert([{ ...template, user_id: user.id }])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as DashboardTemplate
+  },
+
+  // Update template
+  async update(id: string, updates: Partial<Omit<DashboardTemplate, 'id' | 'created_at' | 'updated_at'>>) {
+    const { data, error } = await supabase
+      .from('dashboard_templates')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as DashboardTemplate
+  },
+
+  // Delete template
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('dashboard_templates')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  }
+}
+
+// Dashboard content operations
+export const dashboardContentOperations = {
+  // Get all content for a client
+  async getByClientId(clientId: string) {
+    const { data, error } = await supabase
+      .from('dashboard_content')
+      .select('*')
+      .eq('client_id', clientId)
+      .eq('is_active', true)
+      .order('display_order', { ascending: true })
+    
+    if (error) throw error
+    return data as DashboardContent[]
+  },
+
+  // Create new content
+  async create(content: Omit<DashboardContent, 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('dashboard_content')
+      .insert([content])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as DashboardContent
+  },
+
+  // Update content
+  async update(id: string, updates: Partial<Omit<DashboardContent, 'id' | 'created_at' | 'updated_at'>>) {
+    const { data, error } = await supabase
+      .from('dashboard_content')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as DashboardContent
+  },
+
+  // Delete content
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('dashboard_content')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Bulk update content for a client
+  async bulkUpdate(clientId: string, contents: Array<Omit<DashboardContent, 'id' | 'created_at' | 'updated_at' | 'client_id'>>) {
+    // First, delete existing content
+    await supabase
+      .from('dashboard_content')
+      .delete()
+      .eq('client_id', clientId)
+    
+    // Then insert new content
+    const contentData = contents.map((content, index) => ({
+      ...content,
+      client_id: clientId,
+      display_order: index
+    }))
+    
+    const { data, error } = await supabase
+      .from('dashboard_content')
+      .insert(contentData)
+      .select()
+    
+    if (error) throw error
+    return data as DashboardContent[]
+  }
+}
+
+// Dashboard asset operations
+export const dashboardAssetOperations = {
+  // Get all assets for a client
+  async getByClientId(clientId: string) {
+    const { data, error } = await supabase
+      .from('dashboard_assets')
+      .select('*')
+      .eq('client_id', clientId)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data as DashboardAsset[]
+  },
+
+  // Create new asset record (file upload handled separately)
+  async create(asset: Omit<DashboardAsset, 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('dashboard_assets')
+      .insert([asset])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as DashboardAsset
+  },
+
+  // Update asset
+  async update(id: string, updates: Partial<Omit<DashboardAsset, 'id' | 'created_at' | 'updated_at'>>) {
+    const { data, error } = await supabase
+      .from('dashboard_assets')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data as DashboardAsset
+  },
+
+  // Delete asset
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('dashboard_assets')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
   }
 }
 

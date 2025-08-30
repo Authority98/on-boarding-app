@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { type Client } from '@/lib/supabase'
+import { type Client, type DashboardConfig } from '@/lib/supabase'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -38,45 +38,38 @@ interface ChartDataPoint {
 }
 
 export function DashboardMode({ client }: DashboardModeProps) {
-  const [kpiData, setKpiData] = useState<KPIData[]>([])
   const [chartData, setChartData] = useState<ChartDataPoint[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  
+  // Get dashboard configuration with fallbacks
+  const dashboardConfig: DashboardConfig = client.dashboard_config || {
+    theme: {
+      primaryColor: "#3b82f6",
+      secondaryColor: "#64748b",
+      backgroundColor: "#ffffff"
+    },
+    branding: {
+      showLogo: false,
+      showCompanyName: true,
+      customWelcomeMessage: ""
+    },
+    layout: {
+      enableKPIs: true,
+      enableCharts: true,
+      enableTasks: true,
+      enableActivity: true
+    },
+    kpis: [
+      { id: "progress", title: "Project Progress", value: "78%", type: "percentage" },
+      { id: "tasks", title: "Tasks Completed", value: "42", type: "number" },
+      { id: "revenue", title: "Revenue Generated", value: "$24,500", type: "currency" },
+      { id: "engagement", title: "Team Engagement", value: "94%", type: "percentage" }
+    ]
+  }
 
   useEffect(() => {
     // Simulate loading real-time data
     const loadDashboardData = () => {
-      // Mock KPI data
-      const mockKPIs: KPIData[] = [
-        {
-          title: "Project Progress",
-          value: "78%",
-          change: "+12%",
-          isPositive: true,
-          icon: <Target className="w-4 h-4" />
-        },
-        {
-          title: "Tasks Completed",
-          value: "42",
-          change: "+8",
-          isPositive: true,
-          icon: <CheckCircle className="w-4 h-4" />
-        },
-        {
-          title: "Revenue Generated",
-          value: "$24,500",
-          change: "+15%",
-          isPositive: true,
-          icon: <DollarSign className="w-4 h-4" />
-        },
-        {
-          title: "Team Engagement",
-          value: "94%",
-          change: "-2%",
-          isPositive: false,
-          icon: <Users className="w-4 h-4" />
-        }
-      ]
-
       // Mock chart data
       const mockChartData: ChartDataPoint[] = [
         { name: "Jan", value: 4000 },
@@ -88,7 +81,6 @@ export function DashboardMode({ client }: DashboardModeProps) {
         { name: "Jul", value: 3490 },
       ]
 
-      setKpiData(mockKPIs)
       setChartData(mockChartData)
       setIsLoading(false)
     }
@@ -96,6 +88,21 @@ export function DashboardMode({ client }: DashboardModeProps) {
     // Simulate API call delay
     setTimeout(loadDashboardData, 1000)
   }, [client])
+
+  const getKPIIcon = (kpiId: string) => {
+    switch (kpiId) {
+      case 'progress':
+        return <Target className="w-4 h-4" />
+      case 'tasks':
+        return <CheckCircle className="w-4 h-4" />
+      case 'revenue':
+        return <DollarSign className="w-4 h-4" />
+      case 'engagement':
+        return <Users className="w-4 h-4" />
+      default:
+        return <BarChart3 className="w-4 h-4" />
+    }
+  }
 
   const getInitials = (name: string) => {
     return name
@@ -148,21 +155,41 @@ export function DashboardMode({ client }: DashboardModeProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div 
+      className="min-h-screen" 
+      style={{ backgroundColor: dashboardConfig.theme?.backgroundColor || "#f9fafb" }}
+    >
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
+            {dashboardConfig.branding?.showLogo && dashboardConfig.branding?.logoUrl && (
+              <img 
+                src={dashboardConfig.branding.logoUrl} 
+                alt="Logo" 
+                className="w-16 h-16 object-contain rounded-lg"
+              />
+            )}
             <Avatar className="w-16 h-16">
               <AvatarFallback className="text-xl">{getInitials(client.name)}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Welcome back, {client.name.split(' ')[0]}!
+              <h1 
+                className="text-3xl font-bold"
+                style={{ color: dashboardConfig.theme?.primaryColor || "#1f2937" }}
+              >
+                {dashboardConfig.branding?.customWelcomeMessage || 
+                  `Welcome back, ${client.name.split(' ')[0]}!`}
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                {client.company && `${client.company} • `}Here's your dashboard overview
+                {dashboardConfig.branding?.showCompanyName && client.company ? 
+                  `${client.company} • ` : ''}Here's your dashboard overview
               </p>
+              {dashboardConfig.branding?.companyDescription && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {dashboardConfig.branding.companyDescription}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -177,65 +204,80 @@ export function DashboardMode({ client }: DashboardModeProps) {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {kpiData.map((kpi, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                    {kpi.icon}
-                  </div>
-                  <div className={`flex items-center gap-1 text-sm ${
-                    kpi.isPositive ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {kpi.isPositive ? (
-                      <TrendingUp className="w-4 h-4" />
-                    ) : (
-                      <TrendingDown className="w-4 h-4" />
+        {dashboardConfig.layout?.enableKPIs && dashboardConfig.kpis && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {dashboardConfig.kpis.map((kpi, index) => (
+              <Card key={kpi.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div 
+                      className="p-2 rounded-full"
+                      style={{ 
+                        backgroundColor: `${dashboardConfig.theme?.primaryColor || "#3b82f6"}20`,
+                        color: dashboardConfig.theme?.primaryColor || "#3b82f6"
+                      }}
+                    >
+                      {getKPIIcon(kpi.id)}
+                    </div>
+                    {kpi.type === 'percentage' && (
+                      <div className="flex items-center gap-1 text-sm text-green-600">
+                        <TrendingUp className="w-4 h-4" />
+                        +5%
+                      </div>
                     )}
-                    {kpi.change}
                   </div>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                    {kpi.value}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {kpi.title}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  <div>
+                    <p 
+                      className="text-2xl font-bold mb-1"
+                      style={{ color: dashboardConfig.theme?.primaryColor || "#1f2937" }}
+                    >
+                      {kpi.value}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {kpi.title}
+                    </p>
+                    {kpi.description && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {kpi.description}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Main Chart */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
-              Performance Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 flex items-end justify-between gap-4">
-              {chartData.map((point, index) => (
-                <div key={index} className="flex flex-col items-center flex-1">
-                  <div 
-                    className="w-full bg-blue-500 rounded-t-md transition-all duration-300 hover:bg-blue-600"
-                    style={{ 
-                      height: `${(point.value / Math.max(...chartData.map(d => d.value))) * 200}px`,
-                      minHeight: '20px'
-                    }}
-                  />
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                    {point.name}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {dashboardConfig.layout?.enableCharts && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Performance Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64 flex items-end justify-between gap-4">
+                {chartData.map((point, index) => (
+                  <div key={index} className="flex flex-col items-center flex-1">
+                    <div 
+                      className="w-full rounded-t-md transition-all duration-300 hover:opacity-80"
+                      style={{ 
+                        backgroundColor: dashboardConfig.theme?.primaryColor || "#3b82f6",
+                        height: `${(point.value / Math.max(...chartData.map(d => d.value))) * 200}px`,
+                        minHeight: '20px'
+                      }}
+                    />
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      {point.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Content Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

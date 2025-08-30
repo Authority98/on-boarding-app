@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, MoreHorizontal, Building, Mail, Phone, Filter, Settings } from "lucide-react"
 import { AddClientDialog } from "@/components/add-client-dialog"
 import { EditClientDialog } from "@/components/edit-client-dialog"
-import { DashboardEditorInline } from "@/components/dashboard-editor-inline"
+import { DashboardContentEditor } from "@/components/dashboard-content-editor"
 import { clientOperations, type Client } from "@/lib/supabase"
 import { toast } from "sonner"
 import { Loading } from "@/components/ui/loading"
@@ -173,7 +173,7 @@ export default function ClientsPage() {
   // Show dashboard editor if a client is selected
   if (selectedClient) {
     return (
-      <DashboardEditorInline 
+      <DashboardContentEditor 
         client={selectedClient}
         onClientUpdated={handleClientUpdated}
         onBack={handleBackToClients}
