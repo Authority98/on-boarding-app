@@ -74,6 +74,22 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 
 ## Recent Updates
 
+### v4.3.1 - Client Creation Dashboard Configuration Initialization
+- ✅ **Fixed Client Creation Bug**: Resolved critical issue where new clients inherited widget visibility settings from previous clients
+- ✅ **Proper Configuration Initialization**: New clients now start with complete default dashboard configuration during creation
+- ✅ **Eliminated Widget Inheritance**: Fixed issue where some widgets appeared hidden until save button was clicked
+- ✅ **Consistent Default Settings**: All new clients receive identical, comprehensive widget visibility settings
+- ✅ **Enhanced TypeScript Interface**: Updated DashboardConfig interface to include all quickActions properties (contactSupport, downloadResources, viewTasks, helpSection)
+- ✅ **Immediate Functionality**: Widget visibility now works correctly from the moment a client is created, without requiring save button click
+- ✅ **Unified Configuration Management**: Centralized default configuration that matches config manager for consistency
+- ✅ **Technical Excellence**: 
+  - Enhanced clientOperations.create() with complete dashboard_config initialization
+  - Fixed interface mismatches for quickActions properties
+  - Added helpSection to widgetVisibility interface
+  - Comprehensive default KPIs, branding, and theme settings
+- ✅ **Zero Regression**: All existing functionality preserved while fixing the inheritance bug
+- ✅ **Quality Assurance**: Full compilation verification with zero TypeScript errors
+
 ### v4.3.0 - Complete Widget Enable/Disable System Revamp
 - ✅ **Comprehensive Widget Control**: Complete revamp of enable/disable functionality for all widgets across all view modes
 - ✅ **Centralized Widget Visibility**: Enhanced utility system with robust getWidgetVisibility() function and proper type checking

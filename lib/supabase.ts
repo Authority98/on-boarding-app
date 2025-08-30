@@ -97,6 +97,9 @@ export interface DashboardConfig {
         downloadReports?: boolean
         scheduleMeeting?: boolean
         addKPI?: boolean
+        contactSupport?: boolean
+        downloadResources?: boolean
+        viewTasks?: boolean
       }
       activityFeed?: boolean
       taskList?: boolean
@@ -107,6 +110,7 @@ export interface DashboardConfig {
       }
       progressOverview?: boolean
       announcements?: boolean
+      helpSection?: boolean
     }
   }
   kpis?: Array<{
@@ -232,10 +236,92 @@ export const clientOperations = {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
     
+    // Create default dashboard configuration for new clients
+    const defaultDashboardConfig: DashboardConfig = {
+      branding: {
+        showLogo: false,
+        logoUrl: '',
+        showCompanyName: true,
+        customWelcomeMessage: '',
+        companyDescription: ''
+      },
+      theme: {
+        primaryColor: '#3b82f6',
+        backgroundColor: '#f9fafb',
+        textColor: '#1f2937'
+      },
+      layout: {
+        enableKPIs: true,
+        enableCharts: true,
+        enableActivity: true,
+        enableQuickActions: true,
+        enableTaskStats: true,
+        enableProgressOverview: true,
+        widgetVisibility: {
+          kpiCards: [true, true, true, true], // Default 4 KPI cards visible
+          chartSections: {
+            performanceChart: true,
+            performanceTrends: true
+          },
+          quickActions: {
+            viewMessages: true,
+            downloadReports: true,
+            scheduleMeeting: true,
+            addKPI: true,
+            contactSupport: true,
+            downloadResources: true,
+            viewTasks: true
+          },
+          activityFeed: true,
+          taskList: true,
+          taskStats: {
+            totalTasks: true,
+            completedTasks: true,
+            inProgressTasks: true
+          },
+          progressOverview: true,
+          announcements: true,
+          helpSection: true
+        }
+      },
+      kpis: [
+        {
+          id: '1',
+          title: 'Project Progress',
+          value: '78%',
+          type: 'percentage' as const,
+          description: 'Overall project completion rate'
+        },
+        {
+          id: '2',
+          title: 'Revenue Generated',
+          value: '$24,500',
+          type: 'currency' as const,
+          description: 'Monthly recurring revenue'
+        },
+        {
+          id: '3',
+          title: 'Active Projects',
+          value: '12',
+          type: 'number' as const,
+          description: 'Currently active projects'
+        },
+        {
+          id: '4',
+          title: 'Client Satisfaction',
+          value: '4.8/5',
+          type: 'text' as const,
+          description: 'Average satisfaction score'
+        }
+      ],
+      announcements: []
+    }
+    
     // Ensure view_mode is set, default to 'dashboard' if not provided
     const clientData = {
       ...client,
       view_mode: client.view_mode || 'dashboard',
+      dashboard_config: defaultDashboardConfig,
       user_id: user.id
     }
     
