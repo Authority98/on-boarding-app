@@ -74,6 +74,14 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 
 ## Recent Updates
 
+### v4.3.2 - Dashboard Sidebar Simplification
+- ✅ **Streamlined Navigation**: Removed Templates, Tasks, and Messages from main dashboard sidebar for cleaner interface
+- ✅ **Focused Workflow**: Simplified sidebar navigation to core features: Dashboard, Clients, Analytics, Upgrade Plan, Settings
+- ✅ **Reduced Complexity**: Eliminated unused navigation items to improve user focus and reduce cognitive load
+- ✅ **Cleaner UI**: Removed corresponding icon imports (FileTemplate, CheckSquare, MessageSquare) for optimized bundle size
+- ✅ **Updated Search Placeholder**: Modified search text to reflect available features (clients and analytics)
+- ✅ **Enhanced User Experience**: Streamlined navigation promotes better workflow efficiency and reduces interface clutter
+
 ### v4.3.1 - Client Creation Dashboard Configuration Initialization
 - ✅ **Fixed Client Creation Bug**: Resolved critical issue where new clients inherited widget visibility settings from previous clients
 - ✅ **Proper Configuration Initialization**: New clients now start with complete default dashboard configuration during creation

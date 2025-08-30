@@ -13,10 +13,7 @@ import {
   Bell,
   LayoutDashboard,
   Users,
-  FileIcon as FileTemplate,
   BarChart3,
-  CheckSquare,
-  MessageSquare,
   Settings,
   LogOut,
   CreditCard,
@@ -31,10 +28,7 @@ import { NotificationDropdown } from "@/components/notification-dropdown"
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Clients", href: "/dashboard/clients", icon: Users },
-  { name: "Templates", href: "/dashboard/templates", icon: FileTemplate },
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-  { name: "Tasks", href: "/dashboard/tasks", icon: CheckSquare },
-  { name: "Messages", href: "/dashboard/messages", icon: MessageSquare },
   { name: "Upgrade Plan", href: "/dashboard/upgrade", icon: CreditCard },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
@@ -132,7 +126,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="flex-1 max-w-lg">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input placeholder="Search clients, tasks, or templates..." className="pl-10" />
+                  <Input placeholder="Search clients or analytics..." className="pl-10" />
                 </div>
               </div>
               <div className="flex items-center gap-4">
