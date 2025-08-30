@@ -26,6 +26,7 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 - Complete client management system with CRUD operations
 - **Client Dashboard Editor**: Configure personalized dashboards for each client with advanced inline editing
 - **Universal Inline Editing System**: Edit any content directly within the preview across all view modes
+- **Universal Mode Switching**: Switch between Dashboard, Task, and Hybrid modes instantly from within any view
 - **Full-Width Preview Layout**: Maximum editing space with sidebar-free interface design
 - **Multi-Mode Dashboard System**: Three distinct dashboard experiences (Dashboard, Task, Hybrid)
 - **Unique Client URLs**: Auto-generated secure URLs for each client's personalized dashboard
@@ -72,6 +73,16 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 - **Runtime**: Node.js 20
 
 ## Recent Updates
+
+### v4.2.1 - Mode Switching Enhancement & Live Dashboard Editor Fixes
+- ✅ **Universal Mode Switching**: Added mode switcher dropdown to all three dashboard view modes (Dashboard, Task, Hybrid)
+- ✅ **Real-time Mode Preview**: Users can now switch between modes instantly from within any view mode
+- ✅ **Persistent Mode Changes**: Mode switches are automatically saved to database with configuration updates
+- ✅ **Consistent UI Placement**: Mode switcher appears in header of all view modes with uniform styling
+- ✅ **Enhanced Live Editor**: Fixed limitation where mode switching was only available in Task Mode
+- ✅ **Seamless Transitions**: No need to exit Live Dashboard Editor to change client view modes
+- ✅ **Complete Inline Editing**: All three modes now support full inline editing with mode switching capability
+- ✅ **Improved User Experience**: Eliminated workflow interruptions when configuring client dashboards
 
 ### v4.2.0 - Client Card UI Simplification & Black/White Theme
 - ✅ **Simplified Client Cards**: Dramatically reduced visual bulk by 40% with optimized padding and spacing
@@ -273,6 +284,7 @@ After setting up the application, you can use the comprehensive Dashboard Conten
    - **Dashboard Mode**: Edit KPIs, welcome messages, company descriptions, and theme colors inline
    - **Task Mode**: Edit task titles, categories, priorities, progress values, and statistics directly
    - **Hybrid Mode**: Edit both dashboard elements and tasks with compact inline controls
+   - **Mode Switching**: Switch between all three modes instantly using the dropdown in any view
 5. **Advanced Inline Features**:
    - **Color Pickers**: Click any color element to open advanced color editing tools
    - **Dynamic Sections**: Add/remove sections using buttons that appear on hover

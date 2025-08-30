@@ -54,7 +54,8 @@ export default function DashboardContentEditor({ client, onBack, onClientUpdated
         dashboard_config: dashboardConfig
       }
       await clientOperations.update(currentClient.id!, {
-        dashboard_config: dashboardConfig
+        dashboard_config: dashboardConfig,
+        view_mode: currentClient.view_mode
       })
       updateClientWithConfig(dashboardConfig)
       // Update the client in the parent component

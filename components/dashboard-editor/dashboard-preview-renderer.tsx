@@ -113,6 +113,15 @@ export const DashboardPreviewRenderer: React.FC<DashboardPreviewRendererProps> =
                   <Badge variant="outline">
                     Dashboard Mode
                   </Badge>
+                  <select
+                    value={client.view_mode}
+                    onChange={(e) => setCurrentClient(prev => ({ ...prev, view_mode: e.target.value as 'dashboard' | 'task' | 'hybrid' }))}
+                    className="text-sm border rounded px-3 py-2 bg-white cursor-pointer hover:bg-gray-50 ml-4"
+                  >
+                    <option value="dashboard">Dashboard Mode</option>
+                    <option value="task">Task Mode</option>
+                    <option value="hybrid">Hybrid Mode</option>
+                  </select>
                 </div>
               </div>
 
@@ -369,7 +378,7 @@ export const DashboardPreviewRenderer: React.FC<DashboardPreviewRendererProps> =
                   <select
                     value={client.view_mode}
                     onChange={(e) => setCurrentClient(prev => ({ ...prev, view_mode: e.target.value as 'dashboard' | 'task' | 'hybrid' }))}
-                    className="text-sm border rounded px-3 py-2 bg-white cursor-pointer hover:bg-gray-50"
+                    className="text-sm border rounded px-3 py-2 bg-white cursor-pointer hover:bg-gray-50 ml-4"
                   >
                     <option value="dashboard">Dashboard Mode</option>
                     <option value="task">Task Mode</option>
@@ -561,6 +570,15 @@ export const DashboardPreviewRenderer: React.FC<DashboardPreviewRendererProps> =
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="bg-purple-100 text-purple-800">Hybrid Mode</Badge>
                   <Badge variant="outline">Combined View</Badge>
+                  <select
+                    value={client.view_mode}
+                    onChange={(e) => setCurrentClient(prev => ({ ...prev, view_mode: e.target.value as 'dashboard' | 'task' | 'hybrid' }))}
+                    className="text-sm border rounded px-3 py-2 bg-white cursor-pointer hover:bg-gray-50 ml-4"
+                  >
+                    <option value="dashboard">Dashboard Mode</option>
+                    <option value="task">Task Mode</option>
+                    <option value="hybrid">Hybrid Mode</option>
+                  </select>
                 </div>
               </div>
 
