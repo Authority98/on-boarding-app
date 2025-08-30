@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { type Client } from '@/lib/supabase'
+import { getWidgetVisibility } from '@/lib/widget-visibility'
 import { 
   CheckCircle, 
   Circle,
@@ -38,6 +39,34 @@ export function TaskMode({ client }: TaskModeProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [completedCount, setCompletedCount] = useState(0)
+
+  // Get dashboard configuration with fallbacks
+  const dashboardConfig = client.dashboard_config || {
+    theme: {
+      primaryColor: "#3b82f6",
+      secondaryColor: "#64748b",
+      backgroundColor: "#ffffff"
+    },
+    branding: {
+      showLogo: false,
+      showCompanyName: true,
+      customWelcomeMessage: "",
+      companyDescription: ""
+    },
+    layout: {
+      enableProgressOverview: true,
+      enableTaskStats: true,
+      widgetVisibility: {
+        progressOverview: true,
+        taskList: true,
+        taskStats: {
+          totalTasks: true,
+          completedTasks: true,
+          inProgressTasks: true
+        }
+      }
+    }
+  }
 
   useEffect(() => {
     // Simulate loading task data
@@ -210,165 +239,199 @@ export function TaskMode({ client }: TaskModeProps) {
             </Avatar>
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Hello, {client.name.split(' ')[0]}!
+                {dashboardConfig.branding?.customWelcomeMessage || 
+                  `Hello, ${client.name.split(' ')[0]}!`}
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                {client.company && `${client.company} • `}Let's get your tasks completed
+                {dashboardConfig.branding?.showCompanyName && client.company ? 
+                  `${client.company} • ` : ''}Let's get your tasks completed
               </p>
+              {dashboardConfig.branding?.companyDescription && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {dashboardConfig.branding.companyDescription}
+                </p>
+              )}
             </div>
           </div>
           
           {/* Progress Section */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    Your Progress
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {completedCount} of {tasks.length} tasks completed
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-blue-600">
-                    {progressPercentage}%
+          {getWidgetVisibility(dashboardConfig, 'progressOverview') && (
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      Your Progress
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {completedCount} of {tasks.length} tasks completed
+                    </p>
                   </div>
-                  <Badge variant="outline">Task Mode</Badge>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-blue-600">
+                      {progressPercentage}%
+                    </div>
+                    <Badge variant="outline">Task Mode</Badge>
+                  </div>
                 </div>
-              </div>
-              
-              {/* Progress Bar */}
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                <div 
-                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                  style={{ width: `${progressPercentage}%` }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+                
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                  <div 
+                    className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                    style={{ width: `${progressPercentage}%` }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Button variant="outline" className="h-auto p-4 justify-start">
-            <MessageSquare className="w-5 h-5 mr-3" />
-            <div className="text-left">
-              <div className="font-medium">Contact Support</div>
-              <div className="text-sm text-gray-500">Get help with tasks</div>
-            </div>
-          </Button>
-          <Button variant="outline" className="h-auto p-4 justify-start">
-            <Download className="w-5 h-5 mr-3" />
-            <div className="text-left">
-              <div className="font-medium">Download Resources</div>
-              <div className="text-sm text-gray-500">Access project files</div>
-            </div>
-          </Button>
-          <Button variant="outline" className="h-auto p-4 justify-start">
-            <Calendar className="w-5 h-5 mr-3" />
-            <div className="text-left">
-              <div className="font-medium">Schedule Meeting</div>
-              <div className="text-sm text-gray-500">Book time with team</div>
-            </div>
-          </Button>
+          {[
+            { title: "Contact Support", subtitle: "Get help with tasks", icon: <MessageSquare className="w-5 h-5" />, key: "contactSupport" },
+            { title: "Download Resources", subtitle: "Access project files", icon: <Download className="w-5 h-5" />, key: "downloadResources" },
+            { title: "Schedule Meeting", subtitle: "Book time with team", icon: <Calendar className="w-5 h-5" />, key: "scheduleMeeting" }
+          ].map((action) => {
+            const isVisible = getWidgetVisibility(dashboardConfig, `quickActions.${action.key}`)
+            return (
+              <Button 
+                key={action.key}
+                variant="outline" 
+                className={`h-auto p-4 justify-start ${
+                  !isVisible ? 'opacity-30' : ''
+                }`}
+                disabled={!isVisible}
+              >
+                {action.icon}
+                <div className="text-left ml-3">
+                  <div className="font-medium">
+                    {action.title}
+                    {!isVisible && <span className="text-xs text-gray-400 ml-1">(Disabled)</span>}
+                  </div>
+                  <div className="text-sm text-gray-500">{action.subtitle}</div>
+                </div>
+              </Button>
+            )
+          })}
         </div>
 
         {/* Task List */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <FileText className="w-6 h-6" />
-            Your Tasks
-          </h2>
-          
-          {tasks.map((task) => (
-            <Card 
-              key={task.id} 
-              className={`transition-all duration-200 hover:shadow-md ${
-                task.status === 'completed' ? 'opacity-75' : ''
-              }`}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <button
-                    onClick={() => handleTaskToggle(task.id)}
-                    className="mt-1"
-                  >
-                    {getStatusIcon(task.status)}
-                  </button>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className={`text-lg font-semibold ${
-                        task.status === 'completed' 
-                          ? 'line-through text-gray-500 dark:text-gray-400' 
-                          : 'text-gray-900 dark:text-white'
-                      }`}>
-                        {task.title}
-                        {task.priority === 'high' && (
-                          <Star className="w-4 h-4 text-yellow-500 inline ml-2" />
+        {getWidgetVisibility(dashboardConfig, 'taskList') && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <FileText className="w-6 h-6" />
+              Your Tasks
+            </h2>
+            
+            {tasks.map((task) => (
+              <Card 
+                key={task.id} 
+                className={`transition-all duration-200 hover:shadow-md ${
+                  task.status === 'completed' ? 'opacity-75' : ''
+                }`}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <button
+                      onClick={() => handleTaskToggle(task.id)}
+                      className="mt-1"
+                    >
+                      {getStatusIcon(task.status)}
+                    </button>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className={`text-lg font-semibold ${
+                          task.status === 'completed' 
+                            ? 'line-through text-gray-500 dark:text-gray-400' 
+                            : 'text-gray-900 dark:text-white'
+                        }`}>
+                          {task.title}
+                          {task.priority === 'high' && (
+                            <Star className="w-4 h-4 text-yellow-500 inline ml-2" />
+                          )}
+                        </h3>
+                        <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      </div>
+                      
+                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        {task.description}
+                      </p>
+                      
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <Badge variant="secondary" className={getPriorityColor(task.priority)}>
+                          {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
+                        </Badge>
+                        
+                        <Badge variant="outline">
+                          {task.category}
+                        </Badge>
+                        
+                        {task.dueDate && (
+                          <div className="flex items-center gap-1 text-sm text-gray-500">
+                            <Calendar className="w-4 h-4" />
+                            Due: {new Date(task.dueDate).toLocaleDateString()}
+                          </div>
                         )}
-                      </h3>
-                      <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                    </div>
-                    
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      {task.description}
-                    </p>
-                    
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <Badge variant="secondary" className={getPriorityColor(task.priority)}>
-                        {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
-                      </Badge>
-                      
-                      <Badge variant="outline">
-                        {task.category}
-                      </Badge>
-                      
-                      {task.dueDate && (
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <Calendar className="w-4 h-4" />
-                          Due: {new Date(task.dueDate).toLocaleDateString()}
-                        </div>
-                      )}
-                      
-                      {task.status === 'in-progress' && (
-                        <div className="flex items-center gap-1 text-sm text-yellow-600">
-                          <Clock className="w-4 h-4" />
-                          In Progress
-                        </div>
-                      )}
+                        
+                        {task.status === 'in-progress' && (
+                          <div className="flex items-center gap-1 text-sm text-yellow-600">
+                            <Clock className="w-4 h-4" />
+                            In Progress
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Help Section */}
-        <Card className="mt-8">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
-                <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+        {(
+          <Card className={`mt-8 ${
+            !getWidgetVisibility(dashboardConfig, 'helpSection') ? 'opacity-30 relative' : ''
+          }`}>
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
+                  <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      Need Help?
+                    </h3>
+                    <div className="text-xs text-gray-500">
+                      {getWidgetVisibility(dashboardConfig, 'helpSection') ? 'Enabled' : 'Disabled'}
+                    </div>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    If you have questions about any of these tasks or need assistance, 
+                    don't hesitate to reach out to our team. We're here to help you succeed!
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    disabled={!getWidgetVisibility(dashboardConfig, 'helpSection')}
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Contact Support
+                  </Button>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  Need Help?
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  If you have questions about any of these tasks or need assistance, 
-                  don't hesitate to reach out to our team. We're here to help you succeed!
-                </p>
-                <Button variant="outline" size="sm">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Contact Support
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              {!getWidgetVisibility(dashboardConfig, 'helpSection') && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
+                  <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Footer */}
         <div className="mt-12 text-center">

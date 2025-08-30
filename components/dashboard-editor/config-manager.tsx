@@ -28,7 +28,36 @@ export const useDashboardConfig = (client: Client, onClientUpdate: (client: Clie
     layout: {
       enableKPIs: true,
       enableCharts: true,
-      enableActivity: true
+      enableActivity: true,
+      enableQuickActions: true,
+      enableTaskStats: true,
+      enableProgressOverview: true,
+      widgetVisibility: {
+        kpiCards: [true, true, true, true], // Default 4 KPI cards visible
+        chartSections: {
+          performanceChart: true,
+          performanceTrends: true
+        },
+        quickActions: {
+          viewMessages: true,
+          downloadReports: true,
+          scheduleMeeting: true,
+          addKPI: true,
+          contactSupport: true,
+          downloadResources: true,
+          viewTasks: true
+        },
+        activityFeed: true,
+        taskList: true,
+        taskStats: {
+          totalTasks: true,
+          completedTasks: true,
+          inProgressTasks: true
+        },
+        progressOverview: true,
+        announcements: true,
+        helpSection: true
+      }
     },
     kpis: [
       {
@@ -65,7 +94,25 @@ export const useDashboardConfig = (client: Client, onClientUpdate: (client: Clie
 
   const [dashboardConfig, setDashboardConfig] = useState<DashboardConfig>(() => {
     const config = client.dashboard_config as DashboardConfig
-    return config ? { ...getDefaultConfig(), ...config } : getDefaultConfig()
+    const defaultConfig = getDefaultConfig()
+    
+    if (config) {
+      // Merge existing config with default to ensure all new properties exist
+      return {
+        ...defaultConfig,
+        ...config,
+        layout: {
+          ...defaultConfig.layout,
+          ...config.layout,
+          widgetVisibility: {
+            ...defaultConfig.layout?.widgetVisibility,
+            ...config.layout?.widgetVisibility
+          }
+        }
+      }
+    }
+    
+    return defaultConfig
   })
 
   // Update functions
@@ -99,6 +146,36 @@ export const useDashboardConfig = (client: Client, onClientUpdate: (client: Clie
     }))
   }, [])
 
+  const updateWidgetVisibility = useCallback((widgetPath: string, value: boolean, index?: number) => {
+    setDashboardConfig(prev => {
+      const newConfig = { ...prev }
+      const pathParts = widgetPath.split('.')
+      
+      if (!newConfig.layout) newConfig.layout = {}
+      if (!newConfig.layout.widgetVisibility) newConfig.layout.widgetVisibility = {}
+      
+      let current = newConfig.layout.widgetVisibility as any
+      
+      // Navigate to the correct nested object
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        if (!current[pathParts[i]]) current[pathParts[i]] = {}
+        current = current[pathParts[i]]
+      }
+      
+      const finalKey = pathParts[pathParts.length - 1]
+      
+      // Handle array updates (like kpiCards)
+      if (index !== undefined && Array.isArray(current[finalKey])) {
+        current[finalKey] = [...current[finalKey]]
+        current[finalKey][index] = value
+      } else {
+        current[finalKey] = value
+      }
+      
+      return newConfig
+    })
+  }, [])
+
   const updateKPI = useCallback((index: number, updates: Partial<NonNullable<DashboardConfig['kpis']>[0]>) => {
     setDashboardConfig(prev => ({
       ...prev,
@@ -116,17 +193,32 @@ export const useDashboardConfig = (client: Client, onClientUpdate: (client: Clie
       type: 'number' as const,
       description: 'Description for new KPI'
     }
-    setDashboardConfig(prev => ({
-      ...prev,
-      kpis: [...(prev.kpis || []), newKPI]
-    }))
+    setDashboardConfig(prev => {
+      const newConfig = { ...prev }
+      newConfig.kpis = [...(prev.kpis || []), newKPI]
+      
+      // Add to widget visibility array for KPI cards
+      if (newConfig.layout?.widgetVisibility?.kpiCards && Array.isArray(newConfig.layout.widgetVisibility.kpiCards)) {
+        newConfig.layout.widgetVisibility.kpiCards = [...newConfig.layout.widgetVisibility.kpiCards, true]
+      }
+      
+      return newConfig
+    })
   }, [])
 
   const removeKPI = useCallback((index: number) => {
-    setDashboardConfig(prev => ({
-      ...prev,
-      kpis: prev.kpis?.filter((_, i) => i !== index)
-    }))
+    setDashboardConfig(prev => {
+      const newConfig = { ...prev }
+      // Remove the KPI
+      newConfig.kpis = prev.kpis?.filter((_, i) => i !== index)
+      
+      // Update widget visibility array for KPI cards
+      if (newConfig.layout?.widgetVisibility?.kpiCards && Array.isArray(newConfig.layout.widgetVisibility.kpiCards)) {
+        newConfig.layout.widgetVisibility.kpiCards = newConfig.layout.widgetVisibility.kpiCards.filter((_, i) => i !== index)
+      }
+      
+      return newConfig
+    })
   }, [])
 
   const addAnnouncement = useCallback(() => {
@@ -178,6 +270,7 @@ export const useDashboardConfig = (client: Client, onClientUpdate: (client: Clie
     updateBranding,
     updateTheme,
     updateLayout,
+    updateWidgetVisibility,
     updateKPI,
     addKPI,
     removeKPI,

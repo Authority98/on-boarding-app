@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { type Client, type DashboardConfig } from '@/lib/supabase'
+import { getWidgetVisibility } from '@/lib/widget-visibility'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -206,55 +207,67 @@ export function DashboardMode({ client }: DashboardModeProps) {
         {/* KPI Cards */}
         {dashboardConfig.layout?.enableKPIs && dashboardConfig.kpis && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {dashboardConfig.kpis.map((kpi, index) => (
-              <Card key={kpi.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div 
-                      className="p-2 rounded-full"
-                      style={{ 
-                        backgroundColor: `${dashboardConfig.theme?.primaryColor || "#3b82f6"}20`,
-                        color: dashboardConfig.theme?.primaryColor || "#3b82f6"
-                      }}
-                    >
-                      {getKPIIcon(kpi.id)}
-                    </div>
-                    {kpi.type === 'percentage' && (
-                      <div className="flex items-center gap-1 text-sm text-green-600">
-                        <TrendingUp className="w-4 h-4" />
-                        +5%
+            {dashboardConfig.kpis.map((kpi, index) => {
+              const isVisible = getWidgetVisibility(dashboardConfig, 'kpiCards', index)
+              if (!isVisible) return null
+              
+              return (
+                <Card key={kpi.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div 
+                        className="p-2 rounded-full"
+                        style={{ 
+                          backgroundColor: `${dashboardConfig.theme?.primaryColor || "#3b82f6"}20`,
+                          color: dashboardConfig.theme?.primaryColor || "#3b82f6"
+                        }}
+                      >
+                        {getKPIIcon(kpi.id)}
                       </div>
-                    )}
-                  </div>
-                  <div>
-                    <p 
-                      className="text-2xl font-bold mb-1"
-                      style={{ color: dashboardConfig.theme?.primaryColor || "#1f2937" }}
-                    >
-                      {kpi.value}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {kpi.title}
-                    </p>
-                    {kpi.description && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {kpi.description}
+                      {kpi.type === 'percentage' && (
+                        <div className="flex items-center gap-1 text-sm text-green-600">
+                          <TrendingUp className="w-4 h-4" />
+                          +5%
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p 
+                        className="text-2xl font-bold mb-1"
+                        style={{ color: dashboardConfig.theme?.primaryColor || "#1f2937" }}
+                      >
+                        {kpi.value}
                       </p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {kpi.title}
+                      </p>
+                      {kpi.description && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {kpi.description}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
 
         {/* Main Chart */}
         {dashboardConfig.layout?.enableCharts && (
-          <Card className="mb-8">
+          <Card className={`mb-8 group relative ${
+            !getWidgetVisibility(dashboardConfig, 'chartSections.performanceChart') ? 'opacity-30' : ''
+          }`}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5" />
-                Performance Overview
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5" />
+                  Performance Overview
+                </div>
+                <div className="text-xs text-gray-500">
+                  {getWidgetVisibility(dashboardConfig, 'chartSections.performanceChart') ? 'Enabled' : 'Disabled'}
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -275,6 +288,11 @@ export function DashboardMode({ client }: DashboardModeProps) {
                   </div>
                 ))}
               </div>
+              {!getWidgetVisibility(dashboardConfig, 'chartSections.performanceChart') && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
+                  <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -282,84 +300,115 @@ export function DashboardMode({ client }: DashboardModeProps) {
         {/* Content Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { title: "Project milestone completed", time: "2 hours ago", type: "success" },
-                  { title: "New message from team", time: "4 hours ago", type: "info" },
-                  { title: "Weekly report generated", time: "1 day ago", type: "neutral" },
-                  { title: "Budget review scheduled", time: "2 days ago", type: "warning" },
-                ].map((activity, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                    <div className={`w-2 h-2 rounded-full ${
-                      activity.type === 'success' ? 'bg-green-500' :
-                      activity.type === 'info' ? 'bg-blue-500' :
-                      activity.type === 'warning' ? 'bg-yellow-500' : 'bg-gray-500'
-                    }`} />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {activity.title}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {activity.time}
-                      </p>
-                    </div>
+          {dashboardConfig.layout?.enableActivity && (
+            <Card className={!getWidgetVisibility(dashboardConfig, 'activityFeed') ? 'opacity-30 relative' : ''}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5" />
+                    Recent Activity
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="text-xs text-gray-500">
+                    {getWidgetVisibility(dashboardConfig, 'activityFeed') ? 'Enabled' : 'Disabled'}
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { title: "Project milestone completed", time: "2 hours ago", type: "success" },
+                    { title: "New message from team", time: "4 hours ago", type: "info" },
+                    { title: "Weekly report generated", time: "1 day ago", type: "neutral" },
+                    { title: "Budget review scheduled", time: "2 days ago", type: "warning" },
+                  ].map((activity, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                      <div className={`w-2 h-2 rounded-full ${
+                        activity.type === 'success' ? 'bg-green-500' :
+                        activity.type === 'info' ? 'bg-blue-500' :
+                        activity.type === 'warning' ? 'bg-yellow-500' : 'bg-gray-500'
+                      }`} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {activity.title}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {activity.time}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {!getWidgetVisibility(dashboardConfig, 'activityFeed') && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
+                    <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Quick Actions
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { title: "View Messages", icon: <MessageSquare className="w-5 h-5" />, color: "blue" },
-                  { title: "Download Reports", icon: <FileText className="w-5 h-5" />, color: "green" },
-                  { title: "Schedule Meeting", icon: <Calendar className="w-5 h-5" />, color: "purple" },
-                  { title: "Watch Tutorial", icon: <Video className="w-5 h-5" />, color: "orange" },
-                ].map((action, index) => (
-                  <button
-                    key={index}
-                    className={`p-4 rounded-lg border-2 border-dashed transition-all hover:border-solid hover:shadow-md ${
-                      action.color === 'blue' ? 'border-blue-300 hover:border-blue-500 hover:bg-blue-50' :
-                      action.color === 'green' ? 'border-green-300 hover:border-green-500 hover:bg-green-50' :
-                      action.color === 'purple' ? 'border-purple-300 hover:border-purple-500 hover:bg-purple-50' :
-                      'border-orange-300 hover:border-orange-500 hover:bg-orange-50'
-                    } dark:hover:bg-gray-800`}
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      <div className={`p-2 rounded-full ${
-                        action.color === 'blue' ? 'bg-blue-100 text-blue-600' :
-                        action.color === 'green' ? 'bg-green-100 text-green-600' :
-                        action.color === 'purple' ? 'bg-purple-100 text-purple-600' :
-                        'bg-orange-100 text-orange-600'
-                      }`}>
-                        {action.icon}
-                      </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {action.title}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {(
+            <Card className={!getWidgetVisibility(dashboardConfig, 'quickActions') ? 'opacity-30 relative' : ''}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-5 h-5" />
+                    Quick Actions
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {getWidgetVisibility(dashboardConfig, 'quickActions') ? 'Enabled' : 'Disabled'}
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { title: "View Messages", icon: <MessageSquare className="w-5 h-5" />, color: "blue", key: "viewMessages" },
+                    { title: "Download Reports", icon: <FileText className="w-5 h-5" />, color: "green", key: "downloadReports" },
+                    { title: "Schedule Meeting", icon: <Calendar className="w-5 h-5" />, color: "purple", key: "scheduleMeeting" },
+                    { title: "Watch Tutorial", icon: <Video className="w-5 h-5" />, color: "orange", key: "addKPI" },
+                  ].map((action) => {
+                    const isActionVisible = getWidgetVisibility(dashboardConfig, `quickActions.${action.key}`)
+                    return (
+                      <button
+                        key={action.key}
+                        className={`p-4 rounded-lg border-2 border-dashed transition-all hover:border-solid hover:shadow-md ${
+                          action.color === 'blue' ? 'border-blue-300 hover:border-blue-500 hover:bg-blue-50' :
+                          action.color === 'green' ? 'border-green-300 hover:border-green-500 hover:bg-green-50' :
+                          action.color === 'purple' ? 'border-purple-300 hover:border-purple-500 hover:bg-purple-50' :
+                          'border-orange-300 hover:border-orange-500 hover:bg-orange-50'
+                        } dark:hover:bg-gray-800 ${
+                          !isActionVisible ? 'opacity-30' : ''
+                        }`}
+                        disabled={!isActionVisible}
+                      >
+                        <div className="flex flex-col items-center gap-2">
+                          <div className={`p-2 rounded-full ${
+                            action.color === 'blue' ? 'bg-blue-100 text-blue-600' :
+                            action.color === 'green' ? 'bg-green-100 text-green-600' :
+                            action.color === 'purple' ? 'bg-purple-100 text-purple-600' :
+                            'bg-orange-100 text-orange-600'
+                          }`}>
+                            {action.icon}
+                          </div>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            {action.title}
+                            {!isActionVisible && <span className="text-xs text-gray-400 block">(Disabled)</span>}
+                          </span>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+                {!getWidgetVisibility(dashboardConfig, 'quickActions') && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
+                    <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Footer */}

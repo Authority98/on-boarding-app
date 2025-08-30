@@ -74,6 +74,30 @@ A modern, full-featured client onboarding platform built with Next.js, TypeScrip
 
 ## Recent Updates
 
+### v4.3.0 - Complete Widget Enable/Disable System Revamp
+- ✅ **Comprehensive Widget Control**: Complete revamp of enable/disable functionality for all widgets across all view modes
+- ✅ **Centralized Widget Visibility**: Enhanced utility system with robust getWidgetVisibility() function and proper type checking
+- ✅ **WidgetWrapper Component**: Implemented consistent WidgetWrapper component for uniform enable/disable behavior across all widgets
+- ✅ **Individual Widget Controls**: Granular control for individual KPI cards, Quick Actions, and Task Statistics
+- ✅ **Enhanced User Experience**: 
+  - Changed terminology from "Hide/Show" to "Enable/Disable" for clarity
+  - Removed all "×" cross options for cleaner interface
+  - Disabled widgets show dimmed (30% opacity) in live preview for easy re-enabling
+  - Disabled widgets completely hidden in live dashboard links
+  - Hover-triggered enable/disable buttons with smooth transitions
+- ✅ **Complete Widget Coverage**:
+  - **Dashboard Mode**: KPI Cards (individual), Performance Charts, Activity Feed, Quick Actions (individual)
+  - **Task Mode**: Progress Overview, Task List, Quick Actions, Task Statistics (individual), Help Section
+  - **Hybrid Mode**: KPI Cards (individual), Task List, Performance Trends, Progress Bar, Mobile Quick Actions
+- ✅ **Technical Excellence**:
+  - Fixed all function parameter inconsistencies
+  - Enhanced array handling for individual widget controls
+  - Proper persistence ensuring settings save correctly
+  - Build verification with zero compilation errors
+  - Type-safe implementation with comprehensive TypeScript interfaces
+- ✅ **Live Dashboard Integration**: All live dashboard components properly respect widget visibility settings
+- ✅ **Robust Architecture**: Centralized logic in reusable components with efficient utility functions and proper fallbacks
+
 ### v4.2.1 - Mode Switching Enhancement & Live Dashboard Editor Fixes
 - ✅ **Universal Mode Switching**: Added mode switcher dropdown to all three dashboard view modes (Dashboard, Task, Hybrid)
 - ✅ **Real-time Mode Preview**: Users can now switch between modes instantly from within any view mode

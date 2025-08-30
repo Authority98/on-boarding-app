@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { type Client } from '@/lib/supabase'
+import { getWidgetVisibility } from '@/lib/widget-visibility'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -58,6 +59,38 @@ export function HybridMode({ client }: HybridModeProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [completedCount, setCompletedCount] = useState(0)
   const [tasksPanelCollapsed, setTasksPanelCollapsed] = useState(false)
+
+  // Get dashboard configuration with fallbacks
+  const dashboardConfig = client.dashboard_config || {
+    theme: {
+      primaryColor: "#3b82f6",
+      secondaryColor: "#64748b",
+      backgroundColor: "#ffffff"
+    },
+    branding: {
+      showLogo: false,
+      showCompanyName: true,
+      customWelcomeMessage: "",
+      companyDescription: ""
+    },
+    layout: {
+      enableKPIs: true,
+      enableCharts: true,
+      widgetVisibility: {
+        kpiCards: [true, true, true, true], // Array for individual KPI visibility
+        taskList: true,
+        chartSections: {
+          performanceTrends: true
+        }
+      }
+    },
+    kpis: [
+      { id: '1', title: 'Project Progress', value: '78%', type: 'percentage' as const },
+      { id: '2', title: 'Tasks Completed', value: '42', type: 'number' as const },
+      { id: '3', title: 'Revenue Generated', value: '$24,500', type: 'currency' as const },
+      { id: '4', title: 'Team Engagement', value: '94%', type: 'percentage' as const }
+    ]
+  }
 
   useEffect(() => {
     // Simulate loading data for both dashboard and tasks
@@ -296,89 +329,111 @@ export function HybridMode({ client }: HybridModeProps) {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {kpiData.map((kpi, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                        {kpi.icon}
-                      </div>
-                      <div className={`flex items-center gap-1 text-sm ${
-                        kpi.isPositive ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {kpi.isPositive ? (
-                          <TrendingUp className="w-4 h-4" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4" />
-                        )}
-                        {kpi.change}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                        {kpi.value}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {kpi.title}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {dashboardConfig.layout?.enableKPIs && getWidgetVisibility(dashboardConfig, 'kpiCards') && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {dashboardConfig.kpis?.slice(0, 4).map((kpi, index) => {
+                  const isVisible = getWidgetVisibility(dashboardConfig, 'kpiCards', index)
+                  if (!isVisible) return null
+                  
+                  return (
+                    <Card key={kpi.id} className="hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+                            <Target className="w-4 h-4" />
+                          </div>
+                          {kpi.type === 'percentage' && (
+                            <div className="flex items-center gap-1 text-sm text-green-600">
+                              <TrendingUp className="w-4 h-4" />
+                              +5%
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                            {kpi.value}
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {kpi.title}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
 
             {/* Main Chart */}
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
-                  Performance Overview
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 flex items-end justify-between gap-4">
-                  {chartData.map((point, index) => (
-                    <div key={index} className="flex flex-col items-center flex-1">
-                      <div 
-                        className="w-full bg-blue-500 rounded-t-md transition-all duration-300 hover:bg-blue-600"
-                        style={{ 
-                          height: `${(point.value / Math.max(...chartData.map(d => d.value))) * 200}px`,
-                          minHeight: '20px'
-                        }}
-                      />
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                        {point.name}
-                      </p>
+            {dashboardConfig.layout?.enableCharts && (
+              <Card className={`mb-8 group relative ${
+                !getWidgetVisibility(dashboardConfig, 'chartSections.performanceTrends') ? 'opacity-30' : ''
+              }`}>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5" />
+                      Performance Overview
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="text-xs text-gray-500">
+                      {getWidgetVisibility(dashboardConfig, 'chartSections.performanceTrends') ? 'Enabled' : 'Disabled'}
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 flex items-end justify-between gap-4">
+                    {chartData.map((point, index) => (
+                      <div key={index} className="flex flex-col items-center flex-1">
+                        <div 
+                          className="w-full bg-blue-500 rounded-t-md transition-all duration-300 hover:bg-blue-600"
+                          style={{ 
+                            height: `${(point.value / Math.max(...chartData.map(d => d.value))) * 200}px`,
+                            minHeight: '20px'
+                          }}
+                        />
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                          {point.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  {!getWidgetVisibility(dashboardConfig, 'chartSections.performanceTrends') && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
+                      <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Quick Actions for Mobile */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:hidden mb-8">
-              <Button variant="outline" className="h-auto p-4 justify-start">
-                <MessageSquare className="w-5 h-5 mr-3" />
-                <div className="text-left">
-                  <div className="font-medium">Contact Support</div>
-                  <div className="text-sm text-gray-500">Get help</div>
-                </div>
-              </Button>
-              <Button variant="outline" className="h-auto p-4 justify-start">
-                <FileText className="w-5 h-5 mr-3" />
-                <div className="text-left">
-                  <div className="font-medium">View Tasks</div>
-                  <div className="text-sm text-gray-500">{pendingTasks.length} pending</div>
-                </div>
-              </Button>
-              <Button variant="outline" className="h-auto p-4 justify-start">
-                <Calendar className="w-5 h-5 mr-3" />
-                <div className="text-left">
-                  <div className="font-medium">Schedule Meeting</div>
-                  <div className="text-sm text-gray-500">Book time</div>
-                </div>
-              </Button>
+              {[
+                { title: "Contact Support", subtitle: "Get help", icon: <MessageSquare className="w-5 h-5" />, key: "contactSupport" },
+                { title: "View Tasks", subtitle: `${pendingTasks.length} pending`, icon: <FileText className="w-5 h-5" />, key: "viewTasks" },
+                { title: "Schedule Meeting", subtitle: "Book time", icon: <Calendar className="w-5 h-5" />, key: "scheduleMeeting" }
+              ].map((action) => {
+                const isVisible = getWidgetVisibility(dashboardConfig, `quickActions.${action.key}`)
+                return (
+                  <Button 
+                    key={action.key}
+                    variant="outline" 
+                    className={`h-auto p-4 justify-start ${
+                      !isVisible ? 'opacity-30' : ''
+                    }`}
+                    disabled={!isVisible}
+                  >
+                    {action.icon}
+                    <div className="text-left ml-3">
+                      <div className="font-medium">
+                        {action.title}
+                        {!isVisible && <span className="text-xs text-gray-400 ml-1">(Disabled)</span>}
+                      </div>
+                      <div className="text-sm text-gray-500">{action.subtitle}</div>
+                    </div>
+                  </Button>
+                )
+              })}
             </div>
           </div>
         </div>
@@ -410,10 +465,17 @@ export function HybridMode({ client }: HybridModeProps) {
             </div>
 
             {/* Progress Bar */}
-            <div className="mb-6">
+            <div className={`mb-6 ${
+              !getWidgetVisibility(dashboardConfig, 'progressOverview') ? 'opacity-30' : ''
+            }`}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
-                <span className="text-sm font-bold text-blue-600">{progressPercentage}%</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-blue-600">{progressPercentage}%</span>
+                  <span className="text-xs text-gray-500">
+                    {getWidgetVisibility(dashboardConfig, 'progressOverview') ? 'Enabled' : 'Disabled'}
+                  </span>
+                </div>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div 
@@ -421,60 +483,67 @@ export function HybridMode({ client }: HybridModeProps) {
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
+              {!getWidgetVisibility(dashboardConfig, 'progressOverview') && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded">
+                  <span className="text-xs text-gray-500 font-medium">Disabled</span>
+                </div>
+              )}
             </div>
 
             {/* Task List */}
-            <div className="space-y-3">
-              {tasks.map((task) => (
-                <Card 
-                  key={task.id} 
-                  className={`transition-all duration-200 hover:shadow-sm ${
-                    task.status === 'completed' ? 'opacity-75' : ''
-                  }`}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <button
-                        onClick={() => handleTaskToggle(task.id)}
-                        className="mt-0.5"
-                      >
-                        {getStatusIcon(task.status)}
-                      </button>
-                      
-                      <div className="flex-1 min-w-0">
-                        <h3 className={`text-sm font-medium mb-1 ${
-                          task.status === 'completed' 
-                            ? 'line-through text-gray-500 dark:text-gray-400' 
-                            : 'text-gray-900 dark:text-white'
-                        }`}>
-                          {task.title}
-                          {task.priority === 'high' && (
-                            <Star className="w-3 h-3 text-yellow-500 inline ml-1" />
-                          )}
-                        </h3>
+            {getWidgetVisibility(dashboardConfig, 'taskList') && (
+              <div className="space-y-3">
+                {tasks.map((task) => (
+                  <Card 
+                    key={task.id} 
+                    className={`transition-all duration-200 hover:shadow-sm ${
+                      task.status === 'completed' ? 'opacity-75' : ''
+                    }`}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <button
+                          onClick={() => handleTaskToggle(task.id)}
+                          className="mt-0.5"
+                        >
+                          {getStatusIcon(task.status)}
+                        </button>
                         
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-                          {task.description}
-                        </p>
-                        
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="secondary" className={`text-xs ${getPriorityColor(task.priority)}`}>
-                            {task.priority}
-                          </Badge>
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`text-sm font-medium mb-1 ${
+                            task.status === 'completed' 
+                              ? 'line-through text-gray-500 dark:text-gray-400' 
+                              : 'text-gray-900 dark:text-white'
+                          }`}>
+                            {task.title}
+                            {task.priority === 'high' && (
+                              <Star className="w-3 h-3 text-yellow-500 inline ml-1" />
+                            )}
+                          </h3>
                           
-                          {task.dueDate && (
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                              <Calendar className="w-3 h-3" />
-                              {new Date(task.dueDate).toLocaleDateString()}
-                            </div>
-                          )}
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+                            {task.description}
+                          </p>
+                          
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge variant="secondary" className={`text-xs ${getPriorityColor(task.priority)}`}>
+                              {task.priority}
+                            </Badge>
+                            
+                            {task.dueDate && (
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(task.dueDate).toLocaleDateString()}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
 
             {/* Quick Task Actions */}
             <div className="mt-6 space-y-2">

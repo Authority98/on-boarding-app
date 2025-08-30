@@ -30,6 +30,7 @@ export default function DashboardContentEditor({ client, onBack, onClientUpdated
     updateBranding,
     updateTheme,
     updateLayout,
+    updateWidgetVisibility,
     updateKPI,
     addKPI,
     removeKPI,
@@ -131,6 +132,7 @@ export default function DashboardContentEditor({ client, onBack, onClientUpdated
             updateBranding={updateBranding}
             updateKPI={updateKPI}
             updateLayout={updateLayout}
+            updateWidgetVisibility={updateWidgetVisibility}
             addKPI={addKPI}
             removeKPI={removeKPI}
             setCurrentClient={setCurrentClient}

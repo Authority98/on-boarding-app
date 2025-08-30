@@ -82,7 +82,32 @@ export interface DashboardConfig {
     enableTasks?: boolean
     enableActivity?: boolean
     enableAnnouncements?: boolean
+    enableQuickActions?: boolean
+    enableTaskStats?: boolean
+    enableProgressOverview?: boolean
     sectionOrder?: string[]
+    widgetVisibility?: {
+      kpiCards?: boolean[]
+      chartSections?: {
+        performanceChart?: boolean
+        performanceTrends?: boolean
+      }
+      quickActions?: {
+        viewMessages?: boolean
+        downloadReports?: boolean
+        scheduleMeeting?: boolean
+        addKPI?: boolean
+      }
+      activityFeed?: boolean
+      taskList?: boolean
+      taskStats?: {
+        totalTasks?: boolean
+        completedTasks?: boolean
+        inProgressTasks?: boolean
+      }
+      progressOverview?: boolean
+      announcements?: boolean
+    }
   }
   kpis?: Array<{
     id: string
