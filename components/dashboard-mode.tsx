@@ -255,19 +255,12 @@ export function DashboardMode({ client }: DashboardModeProps) {
         )}
 
         {/* Main Chart */}
-        {dashboardConfig.layout?.enableCharts && (
-          <Card className={`mb-8 group relative ${
-            !getWidgetVisibility(dashboardConfig, 'chartSections.performanceChart') ? 'opacity-30' : ''
-          }`}>
+        {dashboardConfig.layout?.enableCharts && getWidgetVisibility(dashboardConfig, 'chartSections.performanceChart') && (
+          <Card className="mb-8">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
-                  Performance Overview
-                </div>
-                <div className="text-xs text-gray-500">
-                  {getWidgetVisibility(dashboardConfig, 'chartSections.performanceChart') ? 'Enabled' : 'Disabled'}
-                </div>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Performance Overview
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -288,11 +281,6 @@ export function DashboardMode({ client }: DashboardModeProps) {
                   </div>
                 ))}
               </div>
-              {!getWidgetVisibility(dashboardConfig, 'chartSections.performanceChart') && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
-                  <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
-                </div>
-              )}
             </CardContent>
           </Card>
         )}
@@ -300,17 +288,12 @@ export function DashboardMode({ client }: DashboardModeProps) {
         {/* Content Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Activity */}
-          {dashboardConfig.layout?.enableActivity && (
-            <Card className={!getWidgetVisibility(dashboardConfig, 'activityFeed') ? 'opacity-30 relative' : ''}>
+          {dashboardConfig.layout?.enableActivity && getWidgetVisibility(dashboardConfig, 'activityFeed') && (
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5" />
-                    Recent Activity
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {getWidgetVisibility(dashboardConfig, 'activityFeed') ? 'Enabled' : 'Disabled'}
-                  </div>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Recent Activity
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -338,27 +321,17 @@ export function DashboardMode({ client }: DashboardModeProps) {
                     </div>
                   ))}
                 </div>
-                {!getWidgetVisibility(dashboardConfig, 'activityFeed') && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
-                    <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
-                  </div>
-                )}
               </CardContent>
             </Card>
           )}
 
           {/* Quick Actions */}
-          {(
-            <Card className={!getWidgetVisibility(dashboardConfig, 'quickActions') ? 'opacity-30 relative' : ''}>
+          {getWidgetVisibility(dashboardConfig, 'quickActions') && (
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Target className="w-5 h-5" />
-                    Quick Actions
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {getWidgetVisibility(dashboardConfig, 'quickActions') ? 'Enabled' : 'Disabled'}
-                  </div>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Quick Actions
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -370,6 +343,8 @@ export function DashboardMode({ client }: DashboardModeProps) {
                     { title: "Watch Tutorial", icon: <Video className="w-5 h-5" />, color: "orange", key: "addKPI" },
                   ].map((action) => {
                     const isActionVisible = getWidgetVisibility(dashboardConfig, `quickActions.${action.key}`)
+                    if (!isActionVisible) return null
+                    
                     return (
                       <button
                         key={action.key}
@@ -378,10 +353,7 @@ export function DashboardMode({ client }: DashboardModeProps) {
                           action.color === 'green' ? 'border-green-300 hover:border-green-500 hover:bg-green-50' :
                           action.color === 'purple' ? 'border-purple-300 hover:border-purple-500 hover:bg-purple-50' :
                           'border-orange-300 hover:border-orange-500 hover:bg-orange-50'
-                        } dark:hover:bg-gray-800 ${
-                          !isActionVisible ? 'opacity-30' : ''
-                        }`}
-                        disabled={!isActionVisible}
+                        } dark:hover:bg-gray-800`}
                       >
                         <div className="flex flex-col items-center gap-2">
                           <div className={`p-2 rounded-full ${
@@ -394,18 +366,12 @@ export function DashboardMode({ client }: DashboardModeProps) {
                           </div>
                           <span className="text-sm font-medium text-gray-900 dark:text-white">
                             {action.title}
-                            {!isActionVisible && <span className="text-xs text-gray-400 block">(Disabled)</span>}
                           </span>
                         </div>
                       </button>
                     )
                   })}
                 </div>
-                {!getWidgetVisibility(dashboardConfig, 'quickActions') && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
-                    <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
-                  </div>
-                )}
               </CardContent>
             </Card>
           )}

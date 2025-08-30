@@ -365,19 +365,12 @@ export function HybridMode({ client }: HybridModeProps) {
             )}
 
             {/* Main Chart */}
-            {dashboardConfig.layout?.enableCharts && (
-              <Card className={`mb-8 group relative ${
-                !getWidgetVisibility(dashboardConfig, 'chartSections.performanceTrends') ? 'opacity-30' : ''
-              }`}>
+            {dashboardConfig.layout?.enableCharts && getWidgetVisibility(dashboardConfig, 'chartSections.performanceTrends') && (
+              <Card className="mb-8">
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="w-5 h-5" />
-                      Performance Overview
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {getWidgetVisibility(dashboardConfig, 'chartSections.performanceTrends') ? 'Enabled' : 'Disabled'}
-                    </div>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    Performance Overview
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -397,11 +390,6 @@ export function HybridMode({ client }: HybridModeProps) {
                       </div>
                     ))}
                   </div>
-                  {!getWidgetVisibility(dashboardConfig, 'chartSections.performanceTrends') && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
-                      <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             )}
@@ -414,20 +402,18 @@ export function HybridMode({ client }: HybridModeProps) {
                 { title: "Schedule Meeting", subtitle: "Book time", icon: <Calendar className="w-5 h-5" />, key: "scheduleMeeting" }
               ].map((action) => {
                 const isVisible = getWidgetVisibility(dashboardConfig, `quickActions.${action.key}`)
+                if (!isVisible) return null
+                
                 return (
                   <Button 
                     key={action.key}
                     variant="outline" 
-                    className={`h-auto p-4 justify-start ${
-                      !isVisible ? 'opacity-30' : ''
-                    }`}
-                    disabled={!isVisible}
+                    className="h-auto p-4 justify-start"
                   >
                     {action.icon}
                     <div className="text-left ml-3">
                       <div className="font-medium">
                         {action.title}
-                        {!isVisible && <span className="text-xs text-gray-400 ml-1">(Disabled)</span>}
                       </div>
                       <div className="text-sm text-gray-500">{action.subtitle}</div>
                     </div>
@@ -465,30 +451,20 @@ export function HybridMode({ client }: HybridModeProps) {
             </div>
 
             {/* Progress Bar */}
-            <div className={`mb-6 ${
-              !getWidgetVisibility(dashboardConfig, 'progressOverview') ? 'opacity-30' : ''
-            }`}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
-                <div className="flex items-center gap-2">
+            {getWidgetVisibility(dashboardConfig, 'progressOverview') && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
                   <span className="text-sm font-bold text-blue-600">{progressPercentage}%</span>
-                  <span className="text-xs text-gray-500">
-                    {getWidgetVisibility(dashboardConfig, 'progressOverview') ? 'Enabled' : 'Disabled'}
-                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${progressPercentage}%` }}
+                  />
                 </div>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${progressPercentage}%` }}
-                />
-              </div>
-              {!getWidgetVisibility(dashboardConfig, 'progressOverview') && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded">
-                  <span className="text-xs text-gray-500 font-medium">Disabled</span>
-                </div>
-              )}
-            </div>
+            )}
 
             {/* Task List */}
             {getWidgetVisibility(dashboardConfig, 'taskList') && (

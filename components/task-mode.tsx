@@ -295,20 +295,18 @@ export function TaskMode({ client }: TaskModeProps) {
             { title: "Schedule Meeting", subtitle: "Book time with team", icon: <Calendar className="w-5 h-5" />, key: "scheduleMeeting" }
           ].map((action) => {
             const isVisible = getWidgetVisibility(dashboardConfig, `quickActions.${action.key}`)
+            if (!isVisible) return null
+            
             return (
               <Button 
                 key={action.key}
                 variant="outline" 
-                className={`h-auto p-4 justify-start ${
-                  !isVisible ? 'opacity-30' : ''
-                }`}
-                disabled={!isVisible}
+                className="h-auto p-4 justify-start"
               >
                 {action.icon}
                 <div className="text-left ml-3">
                   <div className="font-medium">
                     {action.title}
-                    {!isVisible && <span className="text-xs text-gray-400 ml-1">(Disabled)</span>}
                   </div>
                   <div className="text-sm text-gray-500">{action.subtitle}</div>
                 </div>
@@ -392,43 +390,27 @@ export function TaskMode({ client }: TaskModeProps) {
         )}
 
         {/* Help Section */}
-        {(
-          <Card className={`mt-8 ${
-            !getWidgetVisibility(dashboardConfig, 'helpSection') ? 'opacity-30 relative' : ''
-          }`}>
+        {getWidgetVisibility(dashboardConfig, 'helpSection') && (
+          <Card className="mt-8">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
                   <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                      Need Help?
-                    </h3>
-                    <div className="text-xs text-gray-500">
-                      {getWidgetVisibility(dashboardConfig, 'helpSection') ? 'Enabled' : 'Disabled'}
-                    </div>
-                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                    Need Help?
+                  </h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     If you have questions about any of these tasks or need assistance, 
                     don't hesitate to reach out to our team. We're here to help you succeed!
                   </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    disabled={!getWidgetVisibility(dashboardConfig, 'helpSection')}
-                  >
+                  <Button variant="outline" size="sm">
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Contact Support
                   </Button>
                 </div>
               </div>
-              {!getWidgetVisibility(dashboardConfig, 'helpSection') && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
-                  <span className="text-sm text-gray-500 font-medium">This widget is disabled</span>
-                </div>
-              )}
             </CardContent>
           </Card>
         )}
