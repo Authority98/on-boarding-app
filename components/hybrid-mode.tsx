@@ -24,6 +24,7 @@ import {
   Calendar,
   MessageSquare
 } from "lucide-react"
+import { ChatWidget } from "@/components/chat-widget"
 
 interface HybridModeProps {
   client: Client
@@ -550,6 +551,15 @@ export function HybridMode({ client }: HybridModeProps) {
           Last updated: {new Date().toLocaleString()} • Hybrid Mode
         </p>
       </div>
+
+      {/* Floating Chat Widget */}
+      <ChatWidget 
+        clientId={client.id || ''}
+        clientName={client.name}
+        position="bottom-right"
+        userType="client"
+        isGuestMode={true}
+      />
     </div>
   )
 }

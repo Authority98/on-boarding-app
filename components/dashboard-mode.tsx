@@ -20,6 +20,7 @@ import {
   FileText,
   Video
 } from "lucide-react"
+import { ChatWidget } from "@/components/chat-widget"
 
 interface DashboardModeProps {
   client: Client
@@ -384,6 +385,15 @@ export function DashboardMode({ client }: DashboardModeProps) {
           </p>
         </div>
       </div>
+
+      {/* Floating Chat Widget */}
+      <ChatWidget 
+        clientId={client.id || ''}
+        clientName={client.name}
+        position="bottom-right"
+        userType="client"
+        isGuestMode={true}
+      />
     </div>
   )
 }

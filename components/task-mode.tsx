@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Star
 } from "lucide-react"
+import { ChatWidget } from "@/components/chat-widget"
 
 interface TaskModeProps {
   client: Client
@@ -422,6 +423,15 @@ export function TaskMode({ client }: TaskModeProps) {
           </p>
         </div>
       </div>
+
+      {/* Floating Chat Widget */}
+      <ChatWidget 
+        clientId={client.id || ''}
+        clientName={client.name}
+        position="bottom-right"
+        userType="client"
+        isGuestMode={true}
+      />
     </div>
   )
 }
