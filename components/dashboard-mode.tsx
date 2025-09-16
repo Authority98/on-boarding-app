@@ -21,6 +21,9 @@ import {
   Video
 } from "lucide-react"
 import { ChatWidget } from "@/components/chat-widget"
+import { FacebookConnection } from "@/components/facebook-connection"
+import { FacebookAnalyticsChart } from "@/components/facebook-analytics-chart"
+import { useFacebookData, formatCurrency, formatNumber, formatPercentage } from "@/hooks/use-facebook-data"
 
 interface DashboardModeProps {
   client: Client
@@ -42,6 +45,33 @@ interface ChartDataPoint {
 export function DashboardMode({ client }: DashboardModeProps) {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const facebookData = useFacebookData(client)
+  
+  // Function to get real Facebook data for KPIs
+  const getFacebookKPIValue = (kpiId: string, defaultValue: string): string => {
+    if (!client.facebook_connected_at || facebookData.isLoading || facebookData.error) {
+      return defaultValue
+    }
+    
+    switch (kpiId) {
+      case 'total-revenue':
+      case 'monthly-revenue':
+        return formatCurrency(facebookData.metrics.spend)
+      case 'total-customers':
+      case 'active-users':
+        return formatNumber(facebookData.metrics.reach)
+      case 'conversion-rate':
+        return formatPercentage(facebookData.metrics.ctr)
+      case 'total-orders':
+        return formatNumber(facebookData.metrics.conversions)
+      case 'avg-order-value':
+        return formatCurrency(facebookData.metrics.cpc)
+      case 'customer-satisfaction':
+        return formatNumber(facebookData.metrics.roas)
+      default:
+        return defaultValue
+    }
+  }
   
   // Get dashboard configuration with fallbacks
   const dashboardConfig: DashboardConfig = client.dashboard_config || {
@@ -205,6 +235,14 @@ export function DashboardMode({ client }: DashboardModeProps) {
           </div>
         </div>
 
+        {/* Facebook Connection */}
+        <div className="mb-8">
+          <FacebookConnection client={client} />
+        </div>
+
+        {/* Facebook Analytics Chart */}
+        <FacebookAnalyticsChart client={client} />
+
         {/* KPI Cards */}
         {dashboardConfig.layout?.enableKPIs && dashboardConfig.kpis && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -237,14 +275,26 @@ export function DashboardMode({ client }: DashboardModeProps) {
                         className="text-2xl font-bold mb-1"
                         style={{ color: dashboardConfig.theme?.primaryColor || "#1f2937" }}
                       >
-                        {kpi.value}
+                        {facebookData.isLoading ? (
+                          <span className="animate-pulse">Loading...</span>
+                        ) : (
+                          getFacebookKPIValue(kpi.id, kpi.value)
+                        )}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         {kpi.title}
+                        {client.facebook_connected_at && (
+                          <span className="ml-2 text-xs text-blue-600">• Live Data</span>
+                        )}
                       </p>
                       {kpi.description && (
                         <p className="text-xs text-gray-500 mt-1">
                           {kpi.description}
+                        </p>
+                      )}
+                      {facebookData.error && client.facebook_connected_at && (
+                        <p className="text-xs text-red-500 mt-1">
+                          Error loading live data
                         </p>
                       )}
                     </div>

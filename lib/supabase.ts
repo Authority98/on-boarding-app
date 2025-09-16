@@ -59,6 +59,14 @@ export interface Client {
   user_id?: string
   created_at?: string
   updated_at?: string
+  // Facebook integration fields
+  facebook_access_token?: string
+  facebook_ad_account_id?: string
+  facebook_connected_at?: string
+  facebook_token_expires_at?: string
+  facebook_page_id?: string
+  facebook_business_id?: string
+  facebook_connection_status?: 'connected' | 'disconnected' | 'expired' | 'error'
 }
 
 // Dashboard configuration types
@@ -185,6 +193,46 @@ export interface DashboardAsset {
   alt_text?: string
   created_at?: string
   updated_at?: string
+}
+
+// Facebook Ads integration types
+export interface FacebookAdsData {
+  id?: string
+  client_id: string
+  ad_account_id: string
+  campaign_id?: string
+  campaign_name?: string
+  adset_id?: string
+  adset_name?: string
+  ad_id?: string
+  ad_name?: string
+  date_start: string
+  date_stop: string
+  impressions?: number
+  clicks?: number
+  spend?: number
+  reach?: number
+  frequency?: number
+  cpm?: number
+  cpc?: number
+  ctr?: number
+  conversions?: number
+  conversion_rate?: number
+  cost_per_conversion?: number
+  roas?: number
+  raw_data?: any
+  created_at?: string
+  updated_at?: string
+}
+
+export interface FacebookConnectionLog {
+  id?: string
+  client_id: string
+  action: 'connect' | 'disconnect' | 'refresh' | 'sync' | 'error'
+  status: 'success' | 'failed' | 'pending'
+  message?: string
+  error_details?: any
+  created_at?: string
 }
 
 // Client operations
