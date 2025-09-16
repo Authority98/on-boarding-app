@@ -21,6 +21,7 @@ import {
   Star
 } from "lucide-react"
 import { ChatWidget } from "@/components/chat-widget"
+import { FacebookConnection } from "@/components/facebook-connection"
 
 interface TaskModeProps {
   client: Client
@@ -286,6 +287,11 @@ export function TaskMode({ client }: TaskModeProps) {
               </CardContent>
             </Card>
           )}
+        </div>
+
+        {/* Facebook Connection */}
+        <div className="mb-8">
+          <FacebookConnection client={client} />
         </div>
 
         {/* Quick Actions */}

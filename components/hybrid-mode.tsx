@@ -25,6 +25,7 @@ import {
   MessageSquare
 } from "lucide-react"
 import { ChatWidget } from "@/components/chat-widget"
+import { FacebookConnection } from "@/components/facebook-connection"
 
 interface HybridModeProps {
   client: Client
@@ -327,6 +328,11 @@ export function HybridMode({ client }: HybridModeProps) {
                   {completedCount}/{tasks.length} Tasks Complete
                 </Badge>
               </div>
+            </div>
+
+            {/* Facebook Connection */}
+            <div className="mb-8">
+              <FacebookConnection client={client} />
             </div>
 
             {/* KPI Cards */}
